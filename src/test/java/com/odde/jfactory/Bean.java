@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 public class Bean {
 
-    private String aString;
-    private int anInt;
-    private boolean aBoolean;
+    private String someString;
+    private int someInt;
+    private boolean someBoolean;
 
 }
