@@ -33,10 +33,9 @@ public class MockServerDataRepository implements DataRepository {
     @SneakyThrows
     @Override
     public void save(Object object) {
-        String body = objectMapper.writeValueAsString(object);
         mockServerClient.when(request().withMethod("GET").withPath("/beans"), unlimited())
                 .respond(response().withStatusCode(200)
                         .withHeader(CONTENT_TYPE, "application/json")
-                        .withBody(body));
+                        .withBody(objectMapper.writeValueAsString(object)));
     }
 }

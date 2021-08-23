@@ -5,10 +5,6 @@ import com.github.leeonky.jfactory.JFactory;
 
 public class EntityFactory extends JFactory {
 
-    public EntityFactory() {
-        configFactory();
-    }
-
     public EntityFactory(DataRepository dataRepository) {
         super(dataRepository);
         configFactory();
