@@ -63,8 +63,9 @@ dependencies {
     testImplementation group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
     testImplementation 'org.assertj:assertj-core:3.15.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
     testImplementation 'org.mock-server:mockserver-netty:5.11.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     pitest 'io.github.wmaarts:pitest-mutation-testing-elements-plugin:0.3.1'
 }
@@ -135,3 +136,21 @@ task currentVersion {
 tasks.coveralls {
     dependsOn jacocoTestReport
 }
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+task cucumber(type: JavaExec) {
+    dependsOn assemble, testClasses
+    main = "io.cucumber.core.cli.Main"
+    classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+    args = ['--plugin', 'pretty',
+            '--glue', 'com.odde.jfactory',
+            '--glue', 'com.github.leeonky.jfactory.cucumber',
+            'src/test/resources']
+}
+
+tasks.bootJar { enabled = false }
