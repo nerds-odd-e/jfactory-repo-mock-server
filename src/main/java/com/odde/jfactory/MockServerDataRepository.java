@@ -34,6 +34,9 @@ public class MockServerDataRepository implements DataRepository {
     @SneakyThrows
     @Override
     public void save(Object object) {
+        if (!object.getClass().isAnnotationPresent(Request.class)) {
+            throw new IllegalStateException();
+        }
         String path = object.getClass().getAnnotation(Request.class).path();
         mockServerClient.when(request().withMethod("GET").withPath(path), unlimited())
                 .respond(response().withStatusCode(200)
