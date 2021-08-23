@@ -148,7 +148,7 @@ task cucumber(type: JavaExec) {
     main = "io.cucumber.core.cli.Main"
     classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
     args = ['--plugin', 'pretty',
-            '--glue', 'com.odde.jfactory',
+            '--glue', 'com.odde.jfactory.cucumber',
             '--glue', 'com.github.leeonky.jfactory.cucumber',
             'src/test/resources']
 }

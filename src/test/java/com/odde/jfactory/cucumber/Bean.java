@@ -1,5 +1,6 @@
-package com.odde.jfactory;
+package com.odde.jfactory.cucumber;
 
+import com.odde.jfactory.Request;
 import lombok.Getter;
 import lombok.Setter;
 

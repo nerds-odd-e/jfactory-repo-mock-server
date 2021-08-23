@@ -1,4 +1,4 @@
-package com.odde.jfactory;
+package com.odde.jfactory.cucumber;
 
 import com.github.leeonky.jfactory.DataRepository;
 import com.github.leeonky.jfactory.JFactory;

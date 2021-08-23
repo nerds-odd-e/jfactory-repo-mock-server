@@ -1,4 +1,4 @@
-package com.odde.jfactory;
+package com.odde.jfactory.cucumber;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.spring.CucumberContextConfiguration;

@@ -1,4 +1,4 @@
-package com.odde.jfactory;
+package com.odde.jfactory.cucumber;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

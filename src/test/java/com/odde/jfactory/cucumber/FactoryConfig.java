@@ -1,6 +1,7 @@
-package com.odde.jfactory;
+package com.odde.jfactory.cucumber;
 
 import com.github.leeonky.jfactory.JFactory;
+import com.odde.jfactory.MockServerDataRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
