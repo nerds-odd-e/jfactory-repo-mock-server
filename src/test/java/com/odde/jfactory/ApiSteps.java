@@ -20,7 +20,7 @@ public class ApiSteps {
     private final OkHttpClient okHttpClient = new OkHttpClient();
 
     @SneakyThrows
-    @Then("get {string} response code is {int} and body as below")
+    @Then("Get {string} response code is {int} and body as below")
     public void getResponseCodeIsAndBodyAsBelow(String url, int code, String body) {
         Request request = new Request.Builder()
                 .url(String.format("http://localhost:9081%s", url))

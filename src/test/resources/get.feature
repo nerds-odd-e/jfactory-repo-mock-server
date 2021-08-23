@@ -1,10 +1,10 @@
 Feature: Get request
 
   Scenario: Get by url only
-    Given 存在"Bean":
+    Given Exists data "Bean":
       | someString  | someInt | someBoolean |
       | stringValue | 101     | true        |
-    Then get "/beans" response code is 200 and body as below
+    Then Get "/beans" response code is 200 and body as below
     """
     {
       "someString": "stringValue",
