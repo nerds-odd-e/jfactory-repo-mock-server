@@ -5,6 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@Request(path = "/beans")
 public class Bean {
 
     private String someString;
