@@ -1,5 +1,6 @@
 package com.odde.jfactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.leeonky.jfactory.DataRepository;
 import lombok.SneakyThrows;
@@ -35,21 +36,31 @@ public class MockServerDataRepository implements DataRepository {
     @SneakyThrows
     @Override
     public void save(Object object) {
+        validate(object);
+
+        String path = object.getClass().getAnnotation(Request.class).path();
+        if (isResponseArray(object)) {
+            getJson(path, new Object[]{object});
+        } else {
+            getJson(path, object);
+        }
+    }
+
+    private void getJson(String path, Object response) throws JsonProcessingException {
+        mockServerClient.when(request().withMethod("GET").withPath(path), unlimited())
+                .respond(response().withStatusCode(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
+                        .withBody(objectMapper.writeValueAsString(response)));
+    }
+
+    private boolean isResponseArray(Object object) {
+        Response response = object.getClass().getAnnotation(Response.class);
+        return response != null && response.type().equals(JsonArray);
+    }
+
+    private void validate(Object object) {
         if (!object.getClass().isAnnotationPresent(Request.class)) {
             throw new IllegalStateException();
-        }
-        String path = object.getClass().getAnnotation(Request.class).path();
-        Response response = object.getClass().getAnnotation(Response.class);
-        if (response != null && response.type().equals(JsonArray)) {
-            mockServerClient.when(request().withMethod("GET").withPath(path), unlimited())
-                    .respond(response().withStatusCode(200)
-                            .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
-                            .withBody(objectMapper.writeValueAsString(new Object[]{object})));
-        } else {
-            mockServerClient.when(request().withMethod("GET").withPath(path), unlimited())
-                    .respond(response().withStatusCode(200)
-                            .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
-                            .withBody(objectMapper.writeValueAsString(object)));
         }
     }
 }
