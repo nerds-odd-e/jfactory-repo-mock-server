@@ -60,7 +60,7 @@ public class MockServerDataRepository implements DataRepository {
 
     private void validate(Object object) {
         if (!object.getClass().isAnnotationPresent(Request.class)) {
-            throw new IllegalStateException();
+            throw new IllegalArgumentException("Request annotation must be used");
         }
     }
 }
