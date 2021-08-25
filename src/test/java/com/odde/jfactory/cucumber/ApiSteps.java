@@ -30,4 +30,15 @@ public class ApiSteps {
         assertThat(response.code()).isEqualTo(code);
         JSONAssert.assertEquals(body, response.body().string(), JSONCompareMode.NON_EXTENSIBLE);
     }
+
+    @SneakyThrows
+    @Then("Get {string} response code is {int}")
+    public void getResponseCodeIs(String url, int code) {
+        Request request = new Request.Builder()
+                .url(String.format("http://localhost:9081%s", url))
+                .get().build();
+
+        Response response = okHttpClient.newCall(request).execute();
+        assertThat(response.code()).isEqualTo(code);
+    }
 }

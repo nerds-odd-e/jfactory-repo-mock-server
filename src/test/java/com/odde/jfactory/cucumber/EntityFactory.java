@@ -12,5 +12,6 @@ public class EntityFactory extends JFactory {
 
     private void configFactory() {
         register(Beans.BeanFactory.class);
+        register(BeanForArrays.BeanForArrayFactory.class);
     }
 }

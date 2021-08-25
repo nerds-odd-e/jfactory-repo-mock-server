@@ -7,6 +7,7 @@ import org.mockserver.client.MockServerClient;
 
 import java.util.Collection;
 
+import static com.odde.jfactory.Response.Type.JsonArray;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.mockserver.matchers.Times.unlimited;
@@ -38,9 +39,17 @@ public class MockServerDataRepository implements DataRepository {
             throw new IllegalStateException();
         }
         String path = object.getClass().getAnnotation(Request.class).path();
-        mockServerClient.when(request().withMethod("GET").withPath(path), unlimited())
-                .respond(response().withStatusCode(200)
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
-                        .withBody(objectMapper.writeValueAsString(object)));
+        Response response = object.getClass().getAnnotation(Response.class);
+        if (response != null && response.type().equals(JsonArray)) {
+            mockServerClient.when(request().withMethod("GET").withPath(path), unlimited())
+                    .respond(response().withStatusCode(200)
+                            .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
+                            .withBody(objectMapper.writeValueAsString(new Object[]{object})));
+        } else {
+            mockServerClient.when(request().withMethod("GET").withPath(path), unlimited())
+                    .respond(response().withStatusCode(200)
+                            .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
+                            .withBody(objectMapper.writeValueAsString(object)));
+        }
     }
 }
