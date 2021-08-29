@@ -30,7 +30,7 @@ import static org.mockserver.model.HttpResponse.response;
 public class MockServerDataRepositoryTest {
 
     MockServerClient mockMockServerClient = mock(MockServerClient.class);
-    MockServerDataRepository dataRepository = new MockServerDataRepository(mockMockServerClient);
+    MockServerDataRepositoryImpl dataRepository = new MockServerDataRepositoryImpl(mockMockServerClient);
     ForwardChainExpectation mockResponse = mock(ForwardChainExpectation.class);
     ObjectMapper objectMapper = new ObjectMapper();
     ArgumentCaptor<HttpRequest> requestCaptor = forClass(HttpRequest.class);
