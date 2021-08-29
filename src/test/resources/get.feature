@@ -59,3 +59,35 @@ Feature: Get request
       "someBoolean": true
     }
     """
+
+  Scenario: Get by url with child object
+    Given Exists api data "BeanWithChild":
+      | someString  | someInt | someBoolean | child.yaString |
+      | stringValue | 101     | true        | childValue     |
+    Then Get "/beansWithChild" response code is 200 and body as below
+    """
+    {
+      "someString": "stringValue",
+      "someInt": 101,
+      "someBoolean": true,
+      "child": {
+        "yaString": "childValue"
+      }
+    }
+    """
+
+  Scenario: Get by url with params and child object
+    Given Exists api data "BeanWithChild" with params "foo=bar&name=value1&name=value2"
+      | someString  | someInt | someBoolean | child.yaString |
+      | stringValue | 102     | false       | childValue     |
+    Then Get "/beansWithChild?foo=bar&name=value1&name=value2" response code is 200 and body as below
+    """
+    {
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false,
+      "child": {
+        "yaString": "childValue"
+      }
+    }
+    """

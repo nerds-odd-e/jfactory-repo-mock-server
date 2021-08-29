@@ -25,6 +25,8 @@ public class MockServerData {
 
     @Given("Exists api data {string}:")
     public void existsApiData(String factory, Table table) {
+        MockServerDataRepository dataRepository = (MockServerDataRepository) jFactory.getDataRepository();
+        dataRepository.setRootClass(jFactory.specFactory(factory).getType().getType());
         jData.prepare(factory, table);
     }
 }

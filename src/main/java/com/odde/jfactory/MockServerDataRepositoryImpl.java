@@ -11,6 +11,7 @@ import java.util.Collection;
 
 import static com.odde.jfactory.Response.Type.JsonArray;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
+import static java.util.Collections.emptyList;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.mockserver.matchers.Times.unlimited;
 import static org.mockserver.model.HttpRequest.request;
@@ -20,6 +21,7 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     private final MockServerClient mockServerClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String urlParams;
+    private Class<?> rootClazz;
 
     public MockServerDataRepositoryImpl(MockServerClient mockServerClient) {
         this.mockServerClient = mockServerClient;
@@ -27,7 +29,7 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
 
     @Override
     public <T> Collection<T> queryAll(Class<T> type) {
-        return null;
+        return emptyList();
     }
 
     @Override
@@ -38,6 +40,10 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     @SneakyThrows
     @Override
     public void save(Object object) {
+        if (!object.getClass().equals(rootClazz)) {
+            return;
+        }
+
         validate(object);
 
         String path = object.getClass().getAnnotation(Request.class).path();
@@ -51,6 +57,11 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     @Override
     public void setUrlParams(String urlParams) {
         this.urlParams = urlParams;
+    }
+
+    @Override
+    public void setRootClass(Class<?> clazz) {
+        rootClazz = clazz;
     }
 
     private void getJson(String path, Object response) throws JsonProcessingException {

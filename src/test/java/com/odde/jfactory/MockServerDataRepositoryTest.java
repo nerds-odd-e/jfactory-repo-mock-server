@@ -1,6 +1,7 @@
 package com.odde.jfactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.odde.jfactory.cucumber.BeanWithChild;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -43,7 +44,7 @@ public class MockServerDataRepositoryTest {
     @SneakyThrows
     @Test
     public void mock_get_request_for_response_object() {
-        dataRepository.save(new ObjectWithRequestAndResponseObject().setField("value"));
+        save(new ObjectWithRequestAndResponseObject().setField("value"));
 
         verify(mockMockServerClient).when(eq(request().withMethod("GET").withPath("path")), eq(Times.unlimited()));
         verify(mockResponse).respond(eq(response().withStatusCode(200)
@@ -54,7 +55,7 @@ public class MockServerDataRepositoryTest {
     @SneakyThrows
     @Test
     public void mock_get_request_for_response_array() {
-        dataRepository.save(new ObjectWithRequestAndResponseArray().setField("value"));
+        save(new ObjectWithRequestAndResponseArray().setField("value"));
 
         verify(mockMockServerClient).when(eq(request().withMethod("GET").withPath("path")), eq(Times.unlimited()));
         verify(mockResponse).respond(eq(response().withStatusCode(200)
@@ -65,7 +66,7 @@ public class MockServerDataRepositoryTest {
 
     @Test
     public void throw_exception_when_save_with_no_request_annotation() {
-        assertThatThrownBy(() -> dataRepository.save(new Object()))
+        assertThatThrownBy(() -> save(new Object()))
                 .isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Request annotation must be used");
     }
 
@@ -121,7 +122,7 @@ public class MockServerDataRepositoryTest {
         public void throw_exception_when_param_is_invalid() {
             dataRepository.setUrlParams("namevalue");
 
-            assertThatThrownBy(() -> dataRepository.save(new ObjectWithRequestAndResponseArray())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request param failed to parse");
+            assertThatThrownBy(() -> save(new ObjectWithRequestAndResponseArray())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request param failed to parse");
         }
 
         @Test
@@ -137,20 +138,39 @@ public class MockServerDataRepositoryTest {
 
     }
 
+    @Nested
+    public class ChildObject {
+
+        @Test
+        public void mock_get_request_with_child_object() {
+            dataRepository.setRootClass(BeanWithChild.class);
+
+            dataRepository.save(new BeanWithChild.ChildBean());
+
+            verifyNoInteractions(mockMockServerClient);
+        }
+
+    }
+
     private void resetMocks() {
         requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
         reset(mockMockServerClient);
         givenMockResponse();
     }
 
+    private void save(Object object) {
+        dataRepository.setRootClass(object.getClass());
+        dataRepository.save(object);
+    }
+
     private void saveAndCaptureRequest() {
-        dataRepository.save(new ObjectWithRequestAndResponseArray());
+        save(new ObjectWithRequestAndResponseArray());
         verify(mockMockServerClient).when(requestCaptor.capture(), any(Times.class));
     }
 
     private void saveAndIgnoreException() {
         try {
-            dataRepository.save(new ObjectWithRequestAndResponseArray());
+            save(new ObjectWithRequestAndResponseArray());
         } catch (Exception ignored) {
         }
     }
