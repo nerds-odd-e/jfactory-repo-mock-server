@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.leeonky.jfactory.DataRepository;
 import lombok.SneakyThrows;
 import org.mockserver.client.MockServerClient;
+import org.mockserver.model.HttpRequest;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import static com.odde.jfactory.Response.Type.JsonArray;
@@ -18,6 +20,7 @@ import static org.mockserver.model.HttpResponse.response;
 public class MockServerDataRepository implements DataRepository {
     private final MockServerClient mockServerClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private String urlParams;
 
     public MockServerDataRepository(MockServerClient mockServerClient) {
         this.mockServerClient = mockServerClient;
@@ -46,8 +49,14 @@ public class MockServerDataRepository implements DataRepository {
         }
     }
 
+    public void setUrlParams(String urlParams) {
+        this.urlParams = urlParams;
+    }
+
     private void getJson(String path, Object response) throws JsonProcessingException {
-        mockServerClient.when(request().withMethod("GET").withPath(path), unlimited())
+        HttpRequest request = request().withMethod("GET").withPath(path);
+        setParamsForCurrentRequest(request);
+        mockServerClient.when(request, unlimited())
                 .respond(response().withStatusCode(200)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
                         .withBody(objectMapper.writeValueAsString(response)));
@@ -56,6 +65,21 @@ public class MockServerDataRepository implements DataRepository {
     private boolean isResponseArray(Object object) {
         Response response = object.getClass().getAnnotation(Response.class);
         return response != null && response.type().equals(JsonArray);
+    }
+
+    private void setParamsForCurrentRequest(HttpRequest request) {
+        if (urlParams != null) {
+            try {
+                Arrays.stream(urlParams.split("&")).forEach(pair -> {
+                    String[] nameAndValue = pair.split("=");
+                    request.withQueryStringParameter(nameAndValue[0], nameAndValue[1]);
+                });
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Request param failed to parse");
+            } finally {
+                urlParams = null;
+            }
+        }
     }
 
     private void validate(Object object) {

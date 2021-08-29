@@ -3,6 +3,7 @@ package com.odde.jfactory.cucumber;
 import com.github.leeonky.jfactory.JFactory;
 import com.github.leeonky.jfactory.cucumber.JData;
 import com.github.leeonky.jfactory.cucumber.Table;
+import com.odde.jfactory.MockServerDataRepository;
 import io.cucumber.java.en.Given;
 
 public class MockServerData {
@@ -15,8 +16,11 @@ public class MockServerData {
         this.jFactory = jFactory;
     }
 
-    @Given("Exists data {string} with params {string}")
+    @Given("Exists api data {string} with params {string}")
     public void existsDataWithParams(String factory, String params, Table table) {
+        MockServerDataRepository dataRepository = (MockServerDataRepository) jFactory.getDataRepository();
+        dataRepository.setUrlParams(params);
+        jData.prepare(factory, table);
     }
 
     @Given("Exists api data {string}:")

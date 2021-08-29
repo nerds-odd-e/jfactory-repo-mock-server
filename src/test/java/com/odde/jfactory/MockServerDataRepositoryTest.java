@@ -5,17 +5,23 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockserver.client.ForwardChainExpectation;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.matchers.Times;
+import org.mockserver.model.HttpRequest;
+import org.mockserver.model.Parameter;
 import org.mockserver.model.RequestDefinition;
 
 import static com.odde.jfactory.Response.Type.JsonArray;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockserver.model.HttpRequest.request;
@@ -27,6 +33,7 @@ public class MockServerDataRepositoryTest {
     MockServerDataRepository dataRepository = new MockServerDataRepository(mockMockServerClient);
     ForwardChainExpectation mockResponse = mock(ForwardChainExpectation.class);
     ObjectMapper objectMapper = new ObjectMapper();
+    ArgumentCaptor<HttpRequest> requestCaptor = forClass(HttpRequest.class);
 
     @BeforeEach
     public void givenMockResponse() {
@@ -60,6 +67,88 @@ public class MockServerDataRepositoryTest {
     public void throw_exception_when_save_with_no_request_annotation() {
         assertThatThrownBy(() -> dataRepository.save(new Object()))
                 .isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Request annotation must be used");
+    }
+
+    @Nested
+    public class Params {
+
+        @Test
+        public void mock_get_request_with_params() {
+            dataRepository.setUrlParams("name=value");
+
+            saveAndCaptureRequest();
+
+            Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).containsExactly(new Parameter("name", "value"));
+        }
+
+        @Test
+        public void mock_get_request_without_params() {
+            saveAndCaptureRequest();
+
+            Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).isEmpty();
+        }
+
+        @Test
+        public void mock_get_request_with_more_than_one_params() {
+            dataRepository.setUrlParams("name=value&yaName=yaValue");
+
+            saveAndCaptureRequest();
+
+            Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).containsExactlyInAnyOrder(new Parameter("name", "value"), new Parameter("yaName", "yaValue"));
+        }
+
+        @Test
+        public void mock_get_request_with_multiple_value_param() {
+            dataRepository.setUrlParams("name=value1&name=value2");
+
+            saveAndCaptureRequest();
+
+            Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).containsExactlyInAnyOrder(new Parameter("name", "value1", "value2"));
+        }
+
+        @Test
+        public void mock_get_request_with_params_should_only_available_to_next_save() {
+            dataRepository.setUrlParams("name=value");
+            saveAndCaptureRequest();
+            resetMocks();
+
+            saveAndCaptureRequest();
+
+            Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).isEmpty();
+        }
+
+        @Test
+        public void throw_exception_when_param_is_invalid() {
+            dataRepository.setUrlParams("namevalue");
+
+            assertThatThrownBy(() -> dataRepository.save(new ObjectWithRequestAndResponseArray())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request param failed to parse");
+        }
+
+        @Test
+        public void param_error_should_only_impact_to_next_save() {
+            dataRepository.setUrlParams("namevalue");
+            try {
+                dataRepository.save(new ObjectWithRequestAndResponseArray());
+            } catch (Exception ignored) {
+            }
+            resetMocks();
+
+            saveAndCaptureRequest();
+
+            Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).isEmpty();
+        }
+
+    }
+
+    private void resetMocks() {
+        requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        reset(mockMockServerClient);
+        givenMockResponse();
+    }
+
+    private void saveAndCaptureRequest() {
+        dataRepository.save(new ObjectWithRequestAndResponseArray());
+        verify(mockMockServerClient).when(requestCaptor.capture(), any(Times.class));
     }
 
     @Request(path = "path")
