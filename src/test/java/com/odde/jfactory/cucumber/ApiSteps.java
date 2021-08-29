@@ -22,23 +22,23 @@ public class ApiSteps {
     @SneakyThrows
     @Then("Get {string} response code is {int} and body as below")
     public void getResponseCodeIsAndBodyAsBelow(String url, int code, String body) {
-        Request request = new Request.Builder()
-                .url(String.format("http://localhost:9081%s", url))
-                .get().build();
-
-        Response response = okHttpClient.newCall(request).execute();
+        Response response = getExecute(url);
         assertThat(response.code()).isEqualTo(code);
         JSONAssert.assertEquals(body, response.body().string(), JSONCompareMode.NON_EXTENSIBLE);
     }
 
-    @SneakyThrows
     @Then("Get {string} response code is {int}")
     public void getResponseCodeIs(String url, int code) {
+        Response response = getExecute(url);
+        assertThat(response.code()).isEqualTo(code);
+    }
+
+    @SneakyThrows
+    private Response getExecute(String url) {
         Request request = new Request.Builder()
                 .url(String.format("http://localhost:9081%s", url))
                 .get().build();
-
-        Response response = okHttpClient.newCall(request).execute();
-        assertThat(response.code()).isEqualTo(code);
+        return okHttpClient.newCall(request).execute();
     }
+
 }

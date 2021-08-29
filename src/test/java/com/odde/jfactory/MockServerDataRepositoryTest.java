@@ -127,10 +127,7 @@ public class MockServerDataRepositoryTest {
         @Test
         public void param_error_should_only_impact_to_next_save() {
             dataRepository.setUrlParams("namevalue");
-            try {
-                dataRepository.save(new ObjectWithRequestAndResponseArray());
-            } catch (Exception ignored) {
-            }
+            saveAndIgnoreException();
             resetMocks();
 
             saveAndCaptureRequest();
@@ -149,6 +146,13 @@ public class MockServerDataRepositoryTest {
     private void saveAndCaptureRequest() {
         dataRepository.save(new ObjectWithRequestAndResponseArray());
         verify(mockMockServerClient).when(requestCaptor.capture(), any(Times.class));
+    }
+
+    private void saveAndIgnoreException() {
+        try {
+            dataRepository.save(new ObjectWithRequestAndResponseArray());
+        } catch (Exception ignored) {
+        }
     }
 
     @Request(path = "path")

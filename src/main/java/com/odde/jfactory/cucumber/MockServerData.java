@@ -20,7 +20,7 @@ public class MockServerData {
     public void existsDataWithParams(String factory, String params, Table table) {
         MockServerDataRepository dataRepository = (MockServerDataRepository) jFactory.getDataRepository();
         dataRepository.setUrlParams(params);
-        jData.prepare(factory, table);
+        existsApiData(factory, table);
     }
 
     @Given("Exists api data {string}:")

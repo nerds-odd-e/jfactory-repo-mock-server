@@ -6,7 +6,7 @@ import org.mockserver.integration.ClientAndServer;
 
 public class MockServer {
 
-    private static ClientAndServer clientAndServer = ClientAndServer.startClientAndServer(9081);
+    private static final ClientAndServer clientAndServer = ClientAndServer.startClientAndServer(9081);
 
     public static ClientAndServer getClientAndServer() {
         return clientAndServer;
