@@ -4,6 +4,7 @@ import com.github.leeonky.jfactory.DataRepository;
 import com.github.leeonky.jfactory.JFactory;
 import com.odde.jfactory.cucumber.get.*;
 import com.odde.jfactory.cucumber.post.*;
+import com.odde.jfactory.cucumber.put.*;
 
 public class EntityFactory extends JFactory {
 
@@ -23,5 +24,10 @@ public class EntityFactory extends JFactory {
         register(PostBeansWithChild.BeanFactory.class);
         register(PostBeansWithPathVariable.BeanFactory.class);
         register(PostBeansWithTwoPathVariables.BeanFactory.class);
+        register(PutBeans.BeanFactory.class);
+        register(PutBeanForArrays.BeanFactory.class);
+        register(PutBeansWithChild.BeanFactory.class);
+        register(PutBeansWithPathVariable.BeanFactory.class);
+        register(PutBeansWithTwoPathVariables.BeanFactory.class);
     }
 }

@@ -1,4 +1,4 @@
-Feature: Get/Post request
+Feature: Get/Post/Put request
 
   Scenario Outline: <method> by url only and response json object
     Given Exists api data "<factory>":
@@ -16,6 +16,7 @@ Feature: Get/Post request
       | method | factory  |
       | GET    | Bean     |
       | POST   | PostBean |
+      | PUT    | PutBean  |
 
   Scenario Outline: <method> by url only and response json array
     Given Exists api data "<factory>":
@@ -35,6 +36,7 @@ Feature: Get/Post request
       | method | factory          |
       | GET    | BeanForArray     |
       | POST   | PostBeanForArray |
+      | PUT    | PutBeanForArray  |
 
   Scenario Outline: <method> by url and params
     Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2"
@@ -55,6 +57,7 @@ Feature: Get/Post request
       | method | factory  |
       | GET    | Bean     |
       | POST   | PostBean |
+      | PUT    | PutBean  |
 
   Scenario Outline: Params only impact related step
     Given Exists api data "<factory>" with params "foo=bar"
@@ -75,6 +78,7 @@ Feature: Get/Post request
       | method | factory  |
       | GET    | Bean     |
       | POST   | PostBean |
+      | PUT    | PutBean  |
 
   Scenario Outline: <method> by url with child object
     Given Exists api data "<factory>":
@@ -95,6 +99,7 @@ Feature: Get/Post request
       | method | factory           |
       | GET    | BeanWithChild     |
       | POST   | PostBeanWithChild |
+      | PUT    | PutBeanWithChild  |
 
   Scenario Outline: <method> by url with params and child object
     Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2"
@@ -115,6 +120,7 @@ Feature: Get/Post request
       | method | factory           |
       | GET    | BeanWithChild     |
       | POST   | PostBeanWithChild |
+      | PUT    | PutBeanWithChild  |
 
   Scenario Outline: <method> by url and path variables
     Given Exists api data "<factory>" with path variables "foo=bar"
@@ -133,6 +139,7 @@ Feature: Get/Post request
       | method | factory                  |
       | GET    | BeanWithPathVariable     |
       | POST   | PostBeanWithPathVariable |
+      | PUT    | PutBeanWithPathVariable  |
 
   Scenario Outline: <method> by url and two path variables
     Given Exists api data "<factory>" with path variables "foo=bar&name=value"
@@ -151,3 +158,4 @@ Feature: Get/Post request
       | method | factory                      |
       | GET    | BeanWithTwoPathVariables     |
       | POST   | PostBeanWithTwoPathVariables |
+      | PUT    | PutBeanWithTwoPathVariables  |

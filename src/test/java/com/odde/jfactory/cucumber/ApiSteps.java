@@ -45,6 +45,18 @@ public class ApiSteps {
     }
 
     @SneakyThrows
+    @Then("PUT {string} response code is {int} and body as below")
+    public void putResponseCodeIsAndBodyAsBelow(String url, int code, String body) {
+        executeAndAssert("PUT", RequestBody.create("{}", MediaType.parse("application/json")), url, code, body);
+    }
+
+    @Then("PUT {string} response code is {int}")
+    public void putResponseCodeIs(String url, int code) {
+        Response response = execute("PUT", RequestBody.create("{}", MediaType.parse("application/json")), url);
+        assertThat(response.code()).isEqualTo(code);
+    }
+
+    @SneakyThrows
     private Response execute(String method, RequestBody body, String url) {
         Request request = new Request.Builder()
                 .url(String.format("http://localhost:9081%s", url))

@@ -3,6 +3,7 @@ package com.odde.jfactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odde.jfactory.cucumber.get.*;
 import com.odde.jfactory.cucumber.post.PostBean;
+import com.odde.jfactory.cucumber.put.PutBean;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -69,6 +70,17 @@ public class MockServerDataRepositoryTest {
         save(new PostBean().setSomeString("value"));
 
         verify(mockMockServerClient).when(eq(request().withMethod("POST").withPath("/beans")), eq(Times.unlimited()));
+        verify(mockResponse).respond(eq(response().withStatusCode(200)
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
+                .withBody(objectMapper.writeValueAsString(new Bean().setSomeString("value")))));
+    }
+
+    @SneakyThrows
+    @Test
+    public void mock_put_request() {
+        save(new PutBean().setSomeString("value"));
+
+        verify(mockMockServerClient).when(eq(request().withMethod("PUT").withPath("/beans")), eq(Times.unlimited()));
         verify(mockResponse).respond(eq(response().withStatusCode(200)
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
                 .withBody(objectMapper.writeValueAsString(new Bean().setSomeString("value")))));
