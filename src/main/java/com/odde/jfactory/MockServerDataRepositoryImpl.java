@@ -2,15 +2,20 @@ package com.odde.jfactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Joiner;
 import lombok.SneakyThrows;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.odde.jfactory.Response.Type.JsonArray;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.mockserver.matchers.Times.unlimited;
@@ -22,6 +27,7 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String urlParams;
     private Class<?> rootClazz;
+    private String pathVariables;
 
     public MockServerDataRepositoryImpl(MockServerClient mockServerClient) {
         this.mockServerClient = mockServerClient;
@@ -64,8 +70,15 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         rootClazz = clazz;
     }
 
+    @Override
+    public void setPathVariables(String pathVariables) {
+        this.pathVariables = pathVariables;
+    }
+
     private void getJson(String path, Object response) throws JsonProcessingException {
-        HttpRequest request = request().withMethod("GET").withPath(path);
+        String pathWithVariable = populatePathVariables(path);
+        validatePath(pathWithVariable);
+        HttpRequest request = request().withMethod("GET").withPath(pathWithVariable);
         setParamsForCurrentRequest(request);
         mockServerClient.when(request, unlimited())
                 .respond(response().withStatusCode(200)
@@ -76,6 +89,17 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     private boolean isResponseArray(Object object) {
         Response response = object.getClass().getAnnotation(Response.class);
         return response != null && response.type().equals(JsonArray);
+    }
+
+    private String populatePathVariables(String path) {
+        if (pathVariables == null) {
+            return path;
+        }
+        try {
+            return Arrays.stream(pathVariables.split("&")).reduce(path, this::updatePathWithVariableValue);
+        } finally {
+            pathVariables = null;
+        }
     }
 
     private void setParamsForCurrentRequest(HttpRequest request) {
@@ -93,9 +117,32 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         }
     }
 
+    private String updatePathWithVariableValue(String currentPath, String pair) {
+        String[] nameAndValue = pair.split("=");
+        if (nameAndValue.length == 1) {
+            throw new IllegalArgumentException("Request path variable failed to parse");
+        }
+        String name = nameAndValue[0];
+        if (currentPath.contains(format("{%s}", name))) {
+            return currentPath.replace("{" + name + "}", nameAndValue[1]);
+        }
+        throw new IllegalArgumentException("Request path variable \"" + name + "\" failed to match");
+    }
+
     private void validate(Object object) {
         if (!object.getClass().isAnnotationPresent(Request.class)) {
             throw new IllegalArgumentException("Request annotation must be used");
+        }
+    }
+
+    private void validatePath(String path) {
+        Matcher matcher = Pattern.compile("\\{([^}]+)}").matcher(path);
+        ArrayList<String> pathVariableNamesNotSet = new ArrayList<>();
+        while (matcher.find()) {
+            pathVariableNamesNotSet.add(matcher.group(1));
+        }
+        if (!pathVariableNamesNotSet.isEmpty()) {
+            throw new IllegalArgumentException("Request path variable \"" + Joiner.on(",").join(pathVariableNamesNotSet) + "\" not set");
         }
     }
 }

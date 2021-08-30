@@ -1,7 +1,10 @@
 package com.odde.jfactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.odde.jfactory.cucumber.Bean;
 import com.odde.jfactory.cucumber.BeanWithChild;
+import com.odde.jfactory.cucumber.BeanWithPathVariable;
+import com.odde.jfactory.cucumber.BeanWithTwoPathVariables;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -77,14 +80,14 @@ public class MockServerDataRepositoryTest {
         public void mock_get_request_with_params() {
             dataRepository.setUrlParams("name=value");
 
-            saveAndCaptureRequest();
+            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).containsExactly(new Parameter("name", "value"));
         }
 
         @Test
         public void mock_get_request_without_params() {
-            saveAndCaptureRequest();
+            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).isEmpty();
         }
@@ -93,7 +96,7 @@ public class MockServerDataRepositoryTest {
         public void mock_get_request_with_more_than_one_params() {
             dataRepository.setUrlParams("name=value&yaName=yaValue");
 
-            saveAndCaptureRequest();
+            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).containsExactlyInAnyOrder(new Parameter("name", "value"), new Parameter("yaName", "yaValue"));
         }
@@ -102,7 +105,7 @@ public class MockServerDataRepositoryTest {
         public void mock_get_request_with_multiple_value_param() {
             dataRepository.setUrlParams("name=value1&name=value2");
 
-            saveAndCaptureRequest();
+            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).containsExactlyInAnyOrder(new Parameter("name", "value1", "value2"));
         }
@@ -110,10 +113,10 @@ public class MockServerDataRepositoryTest {
         @Test
         public void mock_get_request_with_params_should_only_available_to_next_save() {
             dataRepository.setUrlParams("name=value");
-            saveAndCaptureRequest();
+            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
             resetMocks();
 
-            saveAndCaptureRequest();
+            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).isEmpty();
         }
@@ -128,10 +131,10 @@ public class MockServerDataRepositoryTest {
         @Test
         public void param_error_should_only_impact_to_next_save() {
             dataRepository.setUrlParams("namevalue");
-            saveAndIgnoreException();
+            saveAndIgnoreException(new ObjectWithRequestAndResponseArray());
             resetMocks();
 
-            saveAndCaptureRequest();
+            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).isEmpty();
         }
@@ -152,6 +155,71 @@ public class MockServerDataRepositoryTest {
 
     }
 
+    @Nested
+    public class PathVariables {
+
+        @Test
+        public void mock_get_request_with_path_variable() {
+            dataRepository.setPathVariables("foo=bar");
+
+            saveAndCaptureRequest(new BeanWithPathVariable());
+
+            Assertions.assertThat(requestCaptor.getValue().getPath().getValue()).isEqualTo("/beans/bar");
+        }
+
+        @Test
+        public void mock_get_request_with_multiple_path_variables() {
+            dataRepository.setPathVariables("foo=bar&name=value");
+
+            saveAndCaptureRequest(new BeanWithTwoPathVariables());
+
+            Assertions.assertThat(requestCaptor.getValue().getPath().getValue()).isEqualTo("/beans/bar/another/value");
+        }
+
+        @Test
+        public void mock_get_request_with_path_variable_should_only_available_to_next_save() {
+            dataRepository.setPathVariables("foo=bar");
+            saveAndCaptureRequest(new BeanWithPathVariable());
+            resetMocks();
+
+            assertThatThrownBy(() -> save(new BeanWithPathVariable())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request path variable \"foo\" not set");
+        }
+
+        @Test
+        public void throw_exception_when_path_variable_is_invalid() {
+            dataRepository.setPathVariables("foobar");
+
+            assertThatThrownBy(() -> save(new BeanWithPathVariable())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request path variable failed to parse");
+        }
+
+        @Test
+        public void throw_exception_when_path_variable_not_filled() {
+            dataRepository.setPathVariables("foo=bar");
+
+            assertThatThrownBy(() -> save(new Bean())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request path variable \"foo\" failed to match");
+        }
+
+        @Test
+        public void throw_exception_when_path_variable_not_set() {
+            assertThatThrownBy(() -> save(new BeanWithPathVariable())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request path variable \"foo\" not set");
+        }
+
+        @Test
+        public void throw_exception_when_two_path_variables_not_set() {
+            assertThatThrownBy(() -> save(new BeanWithTwoPathVariables())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request path variable \"foo,name\" not set");
+        }
+
+        @Test
+        public void path_variable_error_should_only_impact_to_next_save() {
+            dataRepository.setPathVariables("foobar");
+            saveAndIgnoreException(new BeanWithPathVariable());
+            resetMocks();
+
+            Assertions.assertThatCode(() -> saveAndCaptureRequest(new ObjectWithRequestAndResponseArray())).doesNotThrowAnyException();
+        }
+
+    }
+
     private void resetMocks() {
         requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
         reset(mockMockServerClient);
@@ -163,14 +231,14 @@ public class MockServerDataRepositoryTest {
         dataRepository.save(object);
     }
 
-    private void saveAndCaptureRequest() {
-        save(new ObjectWithRequestAndResponseArray());
+    private void saveAndCaptureRequest(Object object) {
+        save(object);
         verify(mockMockServerClient).when(requestCaptor.capture(), any(Times.class));
     }
 
-    private void saveAndIgnoreException() {
+    private void saveAndIgnoreException(Object object) {
         try {
-            save(new ObjectWithRequestAndResponseArray());
+            save(object);
         } catch (Exception ignored) {
         }
     }

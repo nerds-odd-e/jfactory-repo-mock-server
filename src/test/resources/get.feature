@@ -91,3 +91,31 @@ Feature: Get request
       }
     }
     """
+
+  Scenario: Get by url and path variables
+    Given Exists api data "BeanWithPathVariable" with path variables "foo=bar"
+      | someString  | someInt | someBoolean |
+      | stringValue | 102     | false       |
+    Then Get "/beans" response code is 404
+    Then Get "/beans/bar" response code is 200 and body as below
+    """
+    {
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false
+    }
+    """
+
+  Scenario: Get by url and two path variables
+    Given Exists api data "BeanWithTwoPathVariables" with path variables "foo=bar&name=value"
+      | someString  | someInt | someBoolean |
+      | stringValue | 102     | false       |
+    Then Get "/beans" response code is 404
+    Then Get "/beans/bar/another/value" response code is 200 and body as below
+    """
+    {
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false
+    }
+    """
