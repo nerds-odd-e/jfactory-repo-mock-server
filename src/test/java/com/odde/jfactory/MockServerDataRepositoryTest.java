@@ -3,6 +3,8 @@ package com.odde.jfactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odde.jfactory.cucumber.get.*;
 import com.odde.jfactory.cucumber.post.PostBean;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,6 +72,13 @@ public class MockServerDataRepositoryTest {
         verify(mockResponse).respond(eq(response().withStatusCode(200)
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
                 .withBody(objectMapper.writeValueAsString(new Bean().setSomeString("value")))));
+    }
+
+    @Test
+    public void mock_request_with_non_uppercase_method_name() {
+        saveAndCaptureRequest(new BeanWithNonUpperCaseMethod());
+
+        Assertions.assertThat(requestCaptor.getValue().getMethod().getValue()).isEqualTo("POST");
     }
 
     @Test
@@ -223,6 +232,12 @@ public class MockServerDataRepositoryTest {
             Assertions.assertThatCode(MockServerDataRepositoryTest.this::saveObjectAndCaptureRequest).doesNotThrowAnyException();
         }
 
+    }
+
+    @Getter
+    @Setter
+    @Request(path = "/beans", method = "Post")
+    private class BeanWithNonUpperCaseMethod {
     }
 
     private void resetMocks() {

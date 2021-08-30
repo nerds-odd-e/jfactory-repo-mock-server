@@ -80,7 +80,7 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     private void getJson(String method, String path, Object response) throws JsonProcessingException {
         String pathWithVariable = populatePathVariables(path);
         validatePath(pathWithVariable);
-        HttpRequest request = request().withMethod(method).withPath(pathWithVariable);
+        HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
         setParamsForCurrentRequest(request);
         mockServerClient.when(request, unlimited())
                 .respond(response().withStatusCode(200)
