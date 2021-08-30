@@ -60,6 +60,17 @@ public class MockServerDataRepositoryTest {
                         new BeanForArray().setSomeString("value")}))));
     }
 
+    @SneakyThrows
+    @Test
+    public void mock_post_request() {
+        save(new PostBean().setSomeString("value"));
+
+        verify(mockMockServerClient).when(eq(request().withMethod("POST").withPath("/beans")), eq(Times.unlimited()));
+        verify(mockResponse).respond(eq(response().withStatusCode(200)
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
+                .withBody(objectMapper.writeValueAsString(new Bean().setSomeString("value")))));
+    }
+
     @Test
     public void throw_exception_when_save_with_no_request_annotation() {
         assertThatThrownBy(() -> save(new Object()))

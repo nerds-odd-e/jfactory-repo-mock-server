@@ -52,11 +52,13 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
 
         validate(object);
 
-        String path = object.getClass().getAnnotation(Request.class).path();
+        Request requestAnnotation = object.getClass().getAnnotation(Request.class);
+        String path = requestAnnotation.path();
+        String method = requestAnnotation.method();
         if (isResponseArray(object)) {
-            getJson(path, new Object[]{object});
+            getJson(method, path, new Object[]{object});
         } else {
-            getJson(path, object);
+            getJson(method, path, object);
         }
     }
 
@@ -75,10 +77,10 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         this.pathVariables = pathVariables;
     }
 
-    private void getJson(String path, Object response) throws JsonProcessingException {
+    private void getJson(String method, String path, Object response) throws JsonProcessingException {
         String pathWithVariable = populatePathVariables(path);
         validatePath(pathWithVariable);
-        HttpRequest request = request().withMethod("GET").withPath(pathWithVariable);
+        HttpRequest request = request().withMethod(method).withPath(pathWithVariable);
         setParamsForCurrentRequest(request);
         mockServerClient.when(request, unlimited())
                 .respond(response().withStatusCode(200)
