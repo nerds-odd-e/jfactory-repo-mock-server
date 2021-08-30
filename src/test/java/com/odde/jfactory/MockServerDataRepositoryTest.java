@@ -1,14 +1,8 @@
 package com.odde.jfactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.odde.jfactory.cucumber.Bean;
-import com.odde.jfactory.cucumber.BeanWithChild;
-import com.odde.jfactory.cucumber.BeanWithPathVariable;
-import com.odde.jfactory.cucumber.BeanWithTwoPathVariables;
-import lombok.Getter;
-import lombok.Setter;
+import com.odde.jfactory.cucumber.*;
 import lombok.SneakyThrows;
-import lombok.experimental.Accessors;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -21,7 +15,6 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.Parameter;
 import org.mockserver.model.RequestDefinition;
 
-import static com.odde.jfactory.Response.Type.JsonArray;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -47,24 +40,24 @@ public class MockServerDataRepositoryTest {
     @SneakyThrows
     @Test
     public void mock_get_request_for_response_object() {
-        save(new ObjectWithRequestAndResponseObject().setField("value"));
+        save(new Bean().setSomeString("value"));
 
-        verify(mockMockServerClient).when(eq(request().withMethod("GET").withPath("path")), eq(Times.unlimited()));
+        verify(mockMockServerClient).when(eq(request().withMethod("GET").withPath("/beans")), eq(Times.unlimited()));
         verify(mockResponse).respond(eq(response().withStatusCode(200)
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
-                .withBody(objectMapper.writeValueAsString(new ObjectWithRequestAndResponseObject().setField("value")))));
+                .withBody(objectMapper.writeValueAsString(new Bean().setSomeString("value")))));
     }
 
     @SneakyThrows
     @Test
     public void mock_get_request_for_response_array() {
-        save(new ObjectWithRequestAndResponseArray().setField("value"));
+        save(new BeanForArray().setSomeString("value"));
 
-        verify(mockMockServerClient).when(eq(request().withMethod("GET").withPath("path")), eq(Times.unlimited()));
+        verify(mockMockServerClient).when(eq(request().withMethod("GET").withPath("/beans")), eq(Times.unlimited()));
         verify(mockResponse).respond(eq(response().withStatusCode(200)
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
-                .withBody(objectMapper.writeValueAsString(new ObjectWithRequestAndResponseArray[]{
-                        new ObjectWithRequestAndResponseArray().setField("value")}))));
+                .withBody(objectMapper.writeValueAsString(new Bean[]{
+                        new BeanForArray().setSomeString("value")}))));
     }
 
     @Test
@@ -80,14 +73,14 @@ public class MockServerDataRepositoryTest {
         public void mock_get_request_with_params() {
             dataRepository.setUrlParams("name=value");
 
-            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
+            saveObjectAndCaptureRequest();
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).containsExactly(new Parameter("name", "value"));
         }
 
         @Test
         public void mock_get_request_without_params() {
-            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
+            saveObjectAndCaptureRequest();
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).isEmpty();
         }
@@ -96,7 +89,7 @@ public class MockServerDataRepositoryTest {
         public void mock_get_request_with_more_than_one_params() {
             dataRepository.setUrlParams("name=value&yaName=yaValue");
 
-            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
+            saveObjectAndCaptureRequest();
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).containsExactlyInAnyOrder(new Parameter("name", "value"), new Parameter("yaName", "yaValue"));
         }
@@ -105,7 +98,7 @@ public class MockServerDataRepositoryTest {
         public void mock_get_request_with_multiple_value_param() {
             dataRepository.setUrlParams("name=value1&name=value2");
 
-            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
+            saveObjectAndCaptureRequest();
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).containsExactlyInAnyOrder(new Parameter("name", "value1", "value2"));
         }
@@ -113,10 +106,10 @@ public class MockServerDataRepositoryTest {
         @Test
         public void mock_get_request_with_params_should_only_available_to_next_save() {
             dataRepository.setUrlParams("name=value");
-            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
+            saveObjectAndCaptureRequest();
             resetMocks();
 
-            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
+            saveObjectAndCaptureRequest();
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).isEmpty();
         }
@@ -125,16 +118,16 @@ public class MockServerDataRepositoryTest {
         public void throw_exception_when_param_is_invalid() {
             dataRepository.setUrlParams("namevalue");
 
-            assertThatThrownBy(() -> save(new ObjectWithRequestAndResponseArray())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request param failed to parse");
+            assertThatThrownBy(() -> save(new BeanForArray())).isInstanceOf(IllegalArgumentException.class).hasMessage("Request param failed to parse");
         }
 
         @Test
         public void param_error_should_only_impact_to_next_save() {
             dataRepository.setUrlParams("namevalue");
-            saveAndIgnoreException(new ObjectWithRequestAndResponseArray());
+            saveAndIgnoreException(new BeanForArray());
             resetMocks();
 
-            saveAndCaptureRequest(new ObjectWithRequestAndResponseArray());
+            saveObjectAndCaptureRequest();
 
             Assertions.assertThat(requestCaptor.getValue().getQueryStringParameterList()).isEmpty();
         }
@@ -215,7 +208,7 @@ public class MockServerDataRepositoryTest {
             saveAndIgnoreException(new BeanWithPathVariable());
             resetMocks();
 
-            Assertions.assertThatCode(() -> saveAndCaptureRequest(new ObjectWithRequestAndResponseArray())).doesNotThrowAnyException();
+            Assertions.assertThatCode(MockServerDataRepositoryTest.this::saveObjectAndCaptureRequest).doesNotThrowAnyException();
         }
 
     }
@@ -243,21 +236,8 @@ public class MockServerDataRepositoryTest {
         }
     }
 
-    @Request(path = "path")
-    @Getter
-    @Setter
-    @Accessors(chain = true)
-    private static class ObjectWithRequestAndResponseObject {
-        private String field;
-    }
-
-    @Request(path = "path")
-    @Response(type = JsonArray)
-    @Getter
-    @Setter
-    @Accessors(chain = true)
-    private static class ObjectWithRequestAndResponseArray {
-        private String field;
+    private void saveObjectAndCaptureRequest() {
+        saveAndCaptureRequest(new BeanForArray());
     }
 
 }
