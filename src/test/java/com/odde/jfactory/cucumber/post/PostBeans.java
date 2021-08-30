@@ -1,4 +1,4 @@
-package com.odde.jfactory.cucumber;
+package com.odde.jfactory.cucumber.post;
 
 import com.github.leeonky.jfactory.Spec;
 

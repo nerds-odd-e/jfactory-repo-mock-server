@@ -1,4 +1,4 @@
-package com.odde.jfactory.cucumber;
+package com.odde.jfactory.cucumber.post;
 
 import com.odde.jfactory.Request;
 import lombok.Getter;
@@ -6,8 +6,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Request(path = "/beansWithChild")
-public class BeanWithChild {
+@Request(path = "/beansWithChild", method = "POST")
+public class PostBeanWithChild {
 
     private String someString;
     private int someInt;

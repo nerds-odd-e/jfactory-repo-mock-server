@@ -1,4 +1,4 @@
-package com.odde.jfactory.cucumber;
+package com.odde.jfactory.cucumber.get;
 
 import com.odde.jfactory.Request;
 import lombok.Getter;

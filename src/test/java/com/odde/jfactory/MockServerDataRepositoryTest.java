@@ -1,7 +1,8 @@
 package com.odde.jfactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.odde.jfactory.cucumber.*;
+import com.odde.jfactory.cucumber.get.*;
+import com.odde.jfactory.cucumber.post.PostBean;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

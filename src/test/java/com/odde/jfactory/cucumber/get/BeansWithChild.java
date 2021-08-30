@@ -1,10 +1,10 @@
-package com.odde.jfactory.cucumber;
+package com.odde.jfactory.cucumber.get;
 
 import com.github.leeonky.jfactory.Spec;
 
 public class BeansWithChild {
 
-    public static class BeanWithChildFactory extends Spec<BeanWithChild> {
+    public static class BeanFactory extends Spec<BeanWithChild> {
         @Override
         protected String getName() {
             return "BeanWithChild";

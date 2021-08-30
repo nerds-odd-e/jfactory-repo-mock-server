@@ -21,21 +21,27 @@ public class ApiSteps {
     private final OkHttpClient okHttpClient = new OkHttpClient();
 
     @SneakyThrows
-    @Then("Get {string} response code is {int} and body as below")
+    @Then("GET {string} response code is {int} and body as below")
     public void getResponseCodeIsAndBodyAsBelow(String url, int code, String body) {
         executeAndAssert("GET", null, url, code, body);
     }
 
-    @Then("Get {string} response code is {int}")
+    @Then("GET {string} response code is {int}")
     public void getResponseCodeIs(String url, int code) {
         Response response = execute("GET", null, url);
         assertThat(response.code()).isEqualTo(code);
     }
 
     @SneakyThrows
-    @Then("Post {string} response code is {int} and body as below")
+    @Then("POST {string} response code is {int} and body as below")
     public void postResponseCodeIsAndBodyAsBelow(String url, int code, String body) {
         executeAndAssert("POST", RequestBody.create("{}", MediaType.parse("application/json")), url, code, body);
+    }
+
+    @Then("POST {string} response code is {int}")
+    public void postResponseCodeIs(String url, int code) {
+        Response response = execute("POST", RequestBody.create("{}", MediaType.parse("application/json")), url);
+        assertThat(response.code()).isEqualTo(code);
     }
 
     @SneakyThrows
