@@ -124,6 +124,7 @@ signing {
 }
 
 nexusPublishing {
+    serverUrl = uri("https://s01.oss.sonatype.org/service/local/")
     username = System.env.ossrhUsername
     password = System.env.ossrhPassword
 }
