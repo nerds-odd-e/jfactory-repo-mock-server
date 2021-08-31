@@ -32,8 +32,8 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-group = 'com.odde'
-version = '0.0.1'
+group = 'com.yaoruozhou'
+version = '0.1.0'
 sourceCompatibility = 1.8
 
 jacocoTestReport {
@@ -76,7 +76,7 @@ test {
 }
 
 pitest {
-    targetClasses = ['com.odde']
+    targetClasses = ['com.yaoruozhou']
     outputFormats = ['HTML2']
     junit5PluginVersion = "0.12"
 }
@@ -149,7 +149,7 @@ task cucumber(type: JavaExec) {
     main = "io.cucumber.core.cli.Main"
     classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
     args = ['--plugin', 'pretty',
-            '--glue', 'com.odde.jfactory.cucumber',
+            '--glue', 'com.yaoruozhou.jfactory.cucumber',
             '--glue', 'com.github.leeonky.jfactory.cucumber',
             'src/test/resources']
 }
