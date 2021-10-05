@@ -1,30 +1,101 @@
-# JFactory JPA DataRepository
+# JFactory Repo MockServer
 
-[![travis-ci](https://travis-ci.com/leeonky/jfactory-repo-jpa.svg?branch=master)](https://travis-ci.com/github/leeonky/jfactory-repo-jpa)
-[![coveralls](https://img.shields.io/coveralls/github/leeonky/jfactory-repo-jpa/master.svg)](https://coveralls.io/github/leeonky/jfactory-repo-jpa)
-[![Lost commit](https://img.shields.io/github/last-commit/leeonky/jfactory-repo-jpa.svg)](https://github.com/leeonky/jfactory-repo-jpa)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.leeonky/jfactory-repo-jpa.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.leeonky/jfactory-repo-jpa)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6fd6832505594ed09070add129b570a6)](https://www.codacy.com/gh/leeonky/jfactory-repo-jpa/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=leeonky/jfactory-repo-jpa&amp;utm_campaign=Badge_Grade)
-[![Maintainability](https://api.codeclimate.com/v1/badges/62a8a3826b05eefd1f3b/maintainability)](https://codeclimate.com/github/leeonky/jfactory-repo-jpa/maintainability)
-[![Code Climate issues](https://img.shields.io/codeclimate/issues/leeonky/jfactory-repo-jpa.svg)](https://codeclimate.com/github/leeonky/jfactory-repo-jpa/maintainability)
-[![Code Climate maintainability (percentage)](https://img.shields.io/codeclimate/maintainability-percentage/leeonky/jfactory-repo-jpa.svg)](https://codeclimate.com/github/leeonky/jfactory-repo-jpa/maintainability)
+JFactory Repo MockServer 有两个作用：
 
+* 提供了一个[JFactory](https://github.com/leeonky/jfactory/blob/master/README.md)
+  中定义的[DataRepository](https://github.com/leeonky/jfactory/blob/master/src/main/java/com/github/leeonky/jfactory/DataRepository.java)
+  的一个实现，将数据存入[MockServer](https://www.mock-server.com/)
+* 提供了一系列 [Cucumber](https://cucumber.io/docs/installation/java/) Step 来准备 MockServer
+  的数据，以此来区分[JFactory-Cucumber](https://github.com/leeonky/jfactory-cucumber/blob/master/README.md) 提供的 Step，实现在同一个
+  Scenario 里面同时准备数据库和 MockServer 数据的效果
 
-# 安装
+## 安装
 
 通过Gradle添加依赖
+
 ``` groovy
-    implementation 'com.github.leeonky:jfactory-repo-jpa:0.1.0'
+    testImplementation 'com.yaoruozhou:jfactory-repo-mock-server:0.1.0'
 ```
 
-# 使用
+## 单独使用
+
+使用下面的代码可以创建一个将数据存入 MockServer 的 JFactory 实例。
+
 ```java
-EntityManagerFactory entityManagerFactory
-JFactory jfactory = new JFactory(new JPADataRepository(entityManagerFactory));
-
-// jfactory.create(xxx);
+JFactory jfactory=new JFactory(new MockServerDataRepositoryImpl(ClientAndServer.startClientAndServer(9081)));
 ```
 
-注意
-- 考虑到关联表和外键问题，JPADataRepository::clear方法仅调用`EntityManager::clear()`清除缓存，不会清除数据库数据，需要测试代码额外添加清理数据逻辑。
+## 与 [jfactory-repo-jpa](https://github.com/leeonky/jfactory-repo-jpa/blob/master/README.md) 一起使用（更加常见的场景）
+
+JFactory Repo JPA 提供了一个将数据存入数据库的 DataRepository 实现，如果要同时使用这两个实现，那么需要实现一个 `CombinedDataRepository` 类，如下所示：
+
+```java
+public class CombinedDataRepository implements MockServerDataRepository {
+
+  private final JPADataRepository jpaDataRepository;
+  private final MockServerDataRepositoryImpl mockServerDataRepository;
+
+  public CombinedDataRepository(EntityManager entityManager, MockServerClient mockServerClient) {
+    jpaDataRepository = new JPADataRepository(entityManager);
+    mockServerDataRepository = new MockServerDataRepositoryImpl(mockServerClient);
+  }
+
+  @Override
+  public void setUrlParams(String urlParams) {
+    mockServerDataRepository.setUrlParams(urlParams);
+  }
+
+  @Override
+  public void setRootClass(Class<?> aClass) {
+    mockServerDataRepository.setRootClass(aClass);
+  }
+
+  @Override
+  public void setPathVariables(String pathVariables) {
+    mockServerDataRepository.setPathVariables(pathVariables);
+  }
+
+  @Override
+  public <T> Collection<T> queryAll(Class<T> aClass) {
+    if (aClass.getPackage().getName().equals("your.mockserver.class.package")) {
+      return mockServerDataRepository.queryAll(aClass);
+    } else {
+      return jpaDataRepository.queryAll(aClass);
+    }
+  }
+
+  @Override
+  public void save(Object o) {
+    if (o.getClass().getPackage().getName().equals("your.mockserver.class.package")) {
+      mockServerDataRepository.save(o);
+    } else {
+      jpaDataRepository.save(o);
+    }
+  }
+
+  @Override
+  public void clear() {
+    jpaDataRepository.clear();
+  }
+}
+```
+
+关于这个 `CombinedDataRepository` 类有几点需要说明：
+
+*
+
+这个类实现了[MockServerDataRepository](https://github.com/nerds-odd-e/jfactory-repo-mock-server/blob/master/src/main/java/com/yaoruozhou/jfactory/MockServerDataRepository.java)
+这个接口。该接口在 DataRepository 的基础上增加了几个方法，这些方式会被 MockServer Cucumber
+Step [MockServerData](https://github.com/nerds-odd-e/jfactory-repo-mock-server/blob/master/src/main/java/com/yaoruozhou/jfactory/MockServerDataRepository.java)
+调用，提供 MockServer 数据准备所需要的额外信息
+
+* 这个类通过 MockServer 实体类与 JPA 实体类所在不同的包来确定，哪些数据对象需要用 MockServerDataRepository 来 save 和 queryAll
+
+有了上面的 `CombinedDataRepository`，就可以使用下面的代码可以创建一个能将数据存入 MockServer 和数据库的 JFactory 实例。
+
+```java
+@PersistenceUnit
+private EntityManagerFactory entityManagerFactory;
+
+        JFactory jfactory=new JFactory(new CombinedDataRepository(entityManagerFactory.createEntityManager(),ClientAndServer.startClientAndServer(9081)));
+```
