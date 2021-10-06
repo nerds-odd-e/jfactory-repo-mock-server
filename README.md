@@ -349,6 +349,29 @@ Exists api data "Bean" with path variables "foo=bar"
 }
 ```
 
+## 注解使用说明
+
+### Request
+
+该注解用来定义 MockServer 打桩的 Api 请求，属性如下：
+
+| 属性名 | 属性值 | 
+| --- | --- |
+| path | 必填，如 /beans，不能包含 query param |
+| method | 选填，默认值为 GET，有效值为 GET，POST，PUT，不区分大小写 |
+
+此注解必须定义。
+
+### Response
+
+该注解用来定义 MockServer 打桩的 Api 响应体，属性如下：
+
+| 属性名 | 属性值 | 
+| --- | --- |
+| type | 选填，默认值为 JsonObject，有效值为 JsonObject 和 JsonArray |
+
+此注解可以不定义。如果不定义，响应体默认返回 JsonObject。
+
 ## 更多文档请看下面
 
 * [请先阅读 JFactory-Cucumber 的文档](https://github.com/leeonky/jfactory-cucumber/blob/master/README.md)
