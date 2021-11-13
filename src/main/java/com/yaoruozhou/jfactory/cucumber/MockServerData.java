@@ -36,7 +36,7 @@ public class MockServerData {
         prepareApiData(factory, table);
     }
 
-    @Given("Exists {int} api data {string}:")
+    @Given("Exists {int} api data {string}")
     public void prepareApiDataWithNumber(int number, String factory) {
         dataRepository.setRootClass(jFactory.specFactory(factory).getType().getType());
         jData.prepare(number, factory);
