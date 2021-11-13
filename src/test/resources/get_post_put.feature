@@ -1,5 +1,21 @@
 Feature: Get/Post/Put request
 
+  Scenario Outline: <method> by url only and response json object and without setting data with table
+    Given Exists 1 api data "<factory>":
+    Then <method> "/beans" response code is 200 and body as below
+    """
+    {
+      "someString": "someString#1",
+      "someInt": 1,
+      "someBoolean": true
+    }
+    """
+    Examples:
+      | method | factory  |
+      | GET    | Bean     |
+      | POST   | PostBean |
+      | PUT    | PutBean  |
+
   Scenario Outline: <method> by url only and response json object
     Given Exists api data "<factory>":
       | someString  | someInt | someBoolean |
