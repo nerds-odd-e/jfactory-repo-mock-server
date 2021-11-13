@@ -154,3 +154,5 @@ task cucumber(type: JavaExec) {
             '--glue', 'com.github.leeonky.jfactory.cucumber',
             'src/test/resources']
 }
+
+cucumber.dependsOn 'test'

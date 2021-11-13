@@ -19,20 +19,20 @@ public class MockServerData {
     }
 
     @Given("Exists api data {string} with params {string}")
-    public void existsDataWithParams(String factory, String params, Table table) {
+    public void prepareApiDataWithParams(String factory, String params, Table table) {
         dataRepository.setUrlParams(params);
-        existsApiData(factory, table);
+        prepareApiData(factory, table);
     }
 
     @Given("Exists api data {string}:")
-    public void existsApiData(String factory, Table table) {
+    public void prepareApiData(String factory, Table table) {
         dataRepository.setRootClass(jFactory.specFactory(factory).getType().getType());
         jData.prepare(factory, table);
     }
 
     @Given("Exists api data {string} with path variables {string}")
-    public void existsApiDataWithPathVariables(String factory, String pathVariables, Table table) {
+    public void prepareApiDataWithPathVariables(String factory, String pathVariables, Table table) {
         dataRepository.setPathVariables(pathVariables);
-        existsApiData(factory, table);
+        prepareApiData(factory, table);
     }
 }
