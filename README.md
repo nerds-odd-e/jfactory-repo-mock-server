@@ -149,6 +149,52 @@ Exists api data "Bean":
 }
 ```
 
+### 根据 MockServer 打桩的 Api Url 准备响应体数据并且不需要设置数据
+
+假如有下面的实体类，并且工厂类已经注册：
+
+```java
+
+@Getter
+@Setter
+@Request(path = "/beans")
+public class Bean {
+
+  private String someString;
+  private int someInt;
+  private boolean someBoolean;
+
+}
+
+public class Beans {
+
+  public static class Factory extends Spec<Bean> {
+    @Override
+    protected String getName() {
+      return "Bean";
+    }
+  }
+}
+```
+
+当用如下的 Cucumber Step 来创建对象时：
+
+```gherkin
+Exists 1 api data "Bean"
+```
+
+那么向 /beans 发送 Get 请求会得到 200 的响应以及如下所示的响应体：
+
+```json
+{
+  "someString": "someString#1",
+  "someInt": 1,
+  "someBoolean": true
+}
+```
+
+值得注意的是，这里返回的数据都是由 JFactory 产生的默认值。
+
 ### 根据 MockServer 打桩的 Api Url 准备响应体数组数据
 
 假如有下面的实体类，并且工厂类已经注册：
@@ -196,6 +242,53 @@ Exists api data "Bean":
   {
     "someString": "stringValue",
     "someInt": 101,
+    "someBoolean": true
+  }
+]
+```
+
+### 根据 MockServer 打桩的 Api Url 准备响应体数组数据并且不需要设置数据
+
+假如有下面的实体类，并且工厂类已经注册：
+
+```java
+
+@Getter
+@Setter
+@Request(path = "/beans")
+@Response(type = JsonArray)
+public class Bean {
+
+  private String someString;
+  private int someInt;
+  private boolean someBoolean;
+
+}
+
+public class Beans {
+
+  public static class Factory extends Spec<Bean> {
+    @Override
+    protected String getName() {
+      return "Bean";
+    }
+  }
+}
+```
+
+当用如下的 Cucumber Step 来创建对象时：
+
+```gherkin
+Exists 1 api data "Bean"
+```
+
+那么向 /beans 发送 Get 请求会得到 200 的响应以及如下所示的响应体：
+
+```json
+[
+  {
+    "someString": "someString#1",
+    "someInt": 1,
     "someBoolean": true
   }
 ]
