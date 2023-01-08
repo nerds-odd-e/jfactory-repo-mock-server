@@ -73,7 +73,7 @@ Feature: Get/Post/Put request
       | PUT    | PutBeanForArray  |
 
   Scenario Outline: <method> by url and params
-    Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2"
+    Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2":
       | someString  | someInt | someBoolean |
       | stringValue | 102     | false       |
     Then <method> "/beans" response code is 404
@@ -94,7 +94,7 @@ Feature: Get/Post/Put request
       | PUT    | PutBean  |
 
   Scenario Outline: Params only impact related step
-    Given Exists api data "<factory>" with params "foo=bar"
+    Given Exists api data "<factory>" with params "foo=bar":
       | someString  | someInt | someBoolean |
       | stringValue | 102     | false       |
     And Exists api data "<factory>":
@@ -136,7 +136,7 @@ Feature: Get/Post/Put request
       | PUT    | PutBeanWithChild  |
 
   Scenario Outline: <method> by url with params and child object
-    Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2"
+    Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2":
       | someString  | someInt | someBoolean | child.yaString |
       | stringValue | 102     | false       | childValue     |
     Then <method> "/beansWithChild?foo=bar&name=value1&name=value2" response code is 200 and body as below
@@ -157,7 +157,7 @@ Feature: Get/Post/Put request
       | PUT    | PutBeanWithChild  |
 
   Scenario Outline: <method> by url and path variables
-    Given Exists api data "<factory>" with path variables "foo=bar"
+    Given Exists api data "<factory>" with path variables "foo=bar":
       | someString  | someInt | someBoolean |
       | stringValue | 102     | false       |
     Then <method> "/beans" response code is 404
@@ -176,7 +176,7 @@ Feature: Get/Post/Put request
       | PUT    | PutBeanWithPathVariable  |
 
   Scenario Outline: <method> by url and two path variables
-    Given Exists api data "<factory>" with path variables "foo=bar&name=value"
+    Given Exists api data "<factory>" with path variables "foo=bar&name=value":
       | someString  | someInt | someBoolean |
       | stringValue | 102     | false       |
     Then <method> "/beans" response code is 404
