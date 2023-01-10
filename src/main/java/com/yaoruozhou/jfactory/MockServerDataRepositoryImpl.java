@@ -6,17 +6,17 @@ import com.google.common.base.Joiner;
 import lombok.SneakyThrows;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
+import org.mockserver.model.NottableString;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.yaoruozhou.jfactory.Response.Type.JsonArray;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.mockserver.matchers.Times.unlimited;
 import static org.mockserver.model.HttpRequest.request;
@@ -35,7 +35,11 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
 
     @Override
     public <T> Collection<T> queryAll(Class<T> type) {
-        return emptyList();
+        Request requestAnnotation = type.getAnnotation(Request.class);
+        HttpRequest requestDefinition = request()
+                .withPath(requestAnnotation.path()).withMethod(requestAnnotation.method());
+        HttpRequest[] recordedRequests = mockServerClient.retrieveRecordedRequests(requestDefinition);
+        return (Collection<T>) Arrays.asList(recordedRequests).stream().map(rd -> new RequestVerification(rd)).collect(toList());
     }
 
     @Override
@@ -145,6 +149,14 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         }
         if (!pathVariableNamesNotSet.isEmpty()) {
             throw new IllegalArgumentException("Request path variable \"" + Joiner.on(",").join(pathVariableNamesNotSet) + "\" not set");
+        }
+    }
+
+    public static class RequestVerification {
+        public final Map<String, List<String>> queryParams;
+
+        public RequestVerification(HttpRequest rd) {
+            queryParams = rd.getQueryStringParameterList().stream().collect(toMap(p -> p.getName().getValue(), p -> p.getValues().stream().map(NottableString::getValue).collect(toList())));
         }
     }
 }

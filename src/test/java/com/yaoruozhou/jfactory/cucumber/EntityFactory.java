@@ -29,5 +29,7 @@ public class EntityFactory extends JFactory {
         register(PutBeansWithChild.BeanFactory.class);
         register(PutBeansWithPathVariable.BeanFactory.class);
         register(PutBeansWithTwoPathVariables.BeanFactory.class);
+
+        register(GetRequests.GetRequest.class);
     }
 }

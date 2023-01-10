@@ -1,4 +1,4 @@
-Feature: Get/Post/Put request
+Feature: Get/Post/Put response
 
   Scenario: GET by url only and response json object without setting data with table
     Given Exists 1 api data "Bean"
