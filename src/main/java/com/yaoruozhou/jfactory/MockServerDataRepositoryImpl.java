@@ -35,11 +35,8 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
 
     @Override
     public <T> Collection<T> queryAll(Class<T> type) {
-        Request requestAnnotation = type.getAnnotation(Request.class);
-        HttpRequest requestDefinition = request()
-                .withPath(requestAnnotation.path()).withMethod(requestAnnotation.method());
-        HttpRequest[] recordedRequests = mockServerClient.retrieveRecordedRequests(requestDefinition);
-        return (Collection<T>) Arrays.asList(recordedRequests).stream().map(rd -> new RequestVerification(rd)).collect(toList());
+        return (Collection<T>) Arrays.asList(retrieveRecordedRequests(type)).stream()
+                .map(rd -> new RequestVerification(rd)).collect(toList());
     }
 
     @Override
@@ -106,6 +103,12 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         } finally {
             pathVariables = null;
         }
+    }
+
+    private <T> HttpRequest[] retrieveRecordedRequests(Class<T> type) {
+        Request request = type.getAnnotation(Request.class);
+        return mockServerClient.retrieveRecordedRequests(request()
+                .withPath(request.path()).withMethod(request.method()));
     }
 
     private void setParamsForCurrentRequest(HttpRequest request) {

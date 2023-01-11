@@ -11,4 +11,5 @@ public @interface Request {
     String path();
 
     String method() default "GET";
+
 }
