@@ -6,9 +6,11 @@ import com.google.common.base.Joiner;
 import lombok.SneakyThrows;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
-import org.mockserver.model.NottableString;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,7 +18,6 @@ import static com.yaoruozhou.jfactory.Response.Type.JsonArray;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.mockserver.matchers.Times.unlimited;
 import static org.mockserver.model.HttpRequest.request;
@@ -35,8 +36,11 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
 
     @Override
     public <T> Collection<T> queryAll(Class<T> type) {
+        if (!type.equals(rootClazz)) {
+            return Collections.emptyList();
+        }
         return (Collection<T>) Arrays.asList(retrieveRecordedRequests(type)).stream()
-                .map(rd -> new RequestVerification(rd)).collect(toList());
+                .map(rd -> new RequestVerification(rd, type.getAnnotation(Request.class))).collect(toList());
     }
 
     @Override
@@ -107,8 +111,15 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
 
     private <T> HttpRequest[] retrieveRecordedRequests(Class<T> type) {
         Request request = type.getAnnotation(Request.class);
-        return mockServerClient.retrieveRecordedRequests(request()
-                .withPath(request.path()).withMethod(request.method()));
+        String path = request.path();
+        HttpRequest requestDefinition = request()
+                .withPath(path).withMethod(request.method());
+        Matcher matcher = Pattern.compile("\\{.+}").matcher(path);
+        while (matcher.find()) {
+            String matched = matcher.group();
+            requestDefinition.withPathParameter(matched.substring(1, matched.length() - 1), ".+");
+        }
+        return mockServerClient.retrieveRecordedRequests(requestDefinition);
     }
 
     private void setParamsForCurrentRequest(HttpRequest request) {
@@ -155,11 +166,4 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         }
     }
 
-    public static class RequestVerification {
-        public final Map<String, List<String>> queryParams;
-
-        public RequestVerification(HttpRequest rd) {
-            queryParams = rd.getQueryStringParameterList().stream().collect(toMap(p -> p.getName().getValue(), p -> p.getValues().stream().map(NottableString::getValue).collect(toList())));
-        }
-    }
 }

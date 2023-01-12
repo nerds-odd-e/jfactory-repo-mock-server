@@ -30,7 +30,7 @@ public class MockServerData {
     @Given("Exists api data {string}:")
     @假如("存在接口数据{string}:")
     public void prepareApiData(String spec, Table table) {
-        dataRepository.setRootClass(jFactory.specFactory(spec).getType().getType());
+        setRootClass(spec);
         jData.prepare(spec, table);
     }
 
@@ -44,12 +44,17 @@ public class MockServerData {
     @Given("Exists {int} api data {string}")
     @假如("存在{int}个接口数据{string}")
     public void prepareApiDataWithNumber(int number, String spec) {
-        dataRepository.setRootClass(jFactory.specFactory(spec).getType().getType());
+        setRootClass(spec);
         jData.prepare(number, spec);
     }
 
     @Then("all api data {string} should be:")
     public void allApiDataShouldBe(String spec, String dalExpression) {
+        setRootClass(spec);
         jData.allShould(spec, dalExpression);
+    }
+
+    private void setRootClass(String spec) {
+        dataRepository.setRootClass(jFactory.specFactory(spec).getType().getType());
     }
 }

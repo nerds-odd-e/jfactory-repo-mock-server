@@ -33,5 +33,6 @@ public class EntityFactory extends JFactory {
         register(GetRequests.GetRequest.class);
         register(PostRequests.PostRequest.class);
         register(PutRequests.PutRequest.class);
+        register(GetRequestsWithPV.GetRequestWithPV.class);
     }
 }
