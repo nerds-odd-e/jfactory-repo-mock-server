@@ -67,6 +67,30 @@ public class RequestVerificationTest {
                 put("key2", "value2");
             }});
         }
+
+        @Test
+        public void two_path_variables_with_other_sub_path_in_middle() {
+            requestAnnotation = new RequestForTest("/path/{key}/other/{key2}", "GET");
+            receivedRequest.withPath("/path/value/other/value2");
+
+            assertThat(requestVerification().pathVariables).containsExactlyInAnyOrderEntriesOf(new HashMap<String, String>() {{
+                put("key", "value");
+                put("key2", "value2");
+            }});
+        }
+    }
+
+    @Nested
+    public class QueryParamsAndPathVariables {
+
+        @Test
+        public void one_query_param_and_one_path_variable() {
+            requestAnnotation = new RequestForTest("/path/{key}", "GET");
+            receivedRequest.withPath("/path/value").withQueryStringParameter("key2", "value2");
+
+            assertThat(requestVerification().pathVariables).containsExactly(new AbstractMap.SimpleEntry<>("key", "value"));
+            assertThat(requestVerification().queryParams).containsExactly(new AbstractMap.SimpleEntry<>("key2", singletonList("value2")));
+        }
     }
 
     @NotNull

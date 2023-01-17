@@ -40,3 +40,20 @@ Feature: Get/Post/Put request
         | method | spec        |
         | POST   | PostRequest |
         | PUT    | PutRequest  |
+
+    Scenario Outline: verify <method> request with path variables
+      When <method> "/api?name=John&place=Amsterdam&place=Shanghai":
+    """
+    {}
+    """
+      Then all api data "<spec>" should be:
+    """
+    queryParams[]: [{
+        name: [John]
+        place: [Amsterdam, Shanghai]
+    }]
+    """
+      Examples:
+        | method | spec        |
+        | POST   | PostRequest |
+        | PUT    | PutRequest  |
