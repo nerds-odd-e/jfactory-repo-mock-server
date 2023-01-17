@@ -97,3 +97,24 @@ Feature: Get/Post/Put request
         | POST   | PostRequestWithPV |
         | PUT    | PutRequestWithPV  |
 
+    Scenario Outline: verify <method> request with body
+      When <method> "/api":
+    """
+    {
+      "name": "John",
+      "place": "Amsterdam"
+    }
+    """
+      Then all api data "<spec>" should be:
+    """
+    : [{
+      body.json: {
+        name: John
+        place: Amsterdam
+      }
+    }]
+    """
+      Examples:
+        | method | spec        |
+        | POST   | PostRequest |
+        | PUT    | PutRequest  |

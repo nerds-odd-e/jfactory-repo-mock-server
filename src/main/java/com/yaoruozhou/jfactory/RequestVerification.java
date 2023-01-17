@@ -14,10 +14,12 @@ import static java.util.stream.Collectors.toMap;
 public class RequestVerification {
     public final Map<String, List<String>> queryParams;
     public final Map<String, String> pathVariables = new HashMap<>();
+    public final byte[] body;
 
     public RequestVerification(HttpRequest rd, Request request) {
         queryParams = parseQueryParams(rd);
         parsePathVariables(rd, request);
+        body = rd.getBodyAsRawBytes();
     }
 
     private boolean isMatched(String[] allActualSubPath, String definedSubPath, int index) {
