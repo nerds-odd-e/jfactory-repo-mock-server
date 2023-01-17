@@ -20,16 +20,17 @@ public class RequestVerification {
         parsePathVariables(rd, request);
     }
 
-    private String[] allActualSubPath(HttpRequest rd) {
-        return rd.getPath().getValue().split("/");
+    private boolean isMatched(String[] allActualSubPath, String definedSubPath, int index) {
+        return definedSubPath.startsWith("{") && definedSubPath.endsWith("}") && index <= allActualSubPath.length - 1;
     }
 
     private void parsePathVariables(HttpRequest rd, Request request) {
         String[] allDefinedSubPath = request.path().split("/");
+        String[] allActualSubPath = rd.getPath().getValue().split("/");
         for (String definedSubPath : allDefinedSubPath) {
             int index = Arrays.asList(allDefinedSubPath).indexOf(definedSubPath);
-            if (definedSubPath.startsWith("{")) {
-                pathVariables.put(definedSubPath.substring(1, definedSubPath.length() - 1), allActualSubPath(rd)[index]);
+            if (isMatched(allActualSubPath, definedSubPath, index)) {
+                pathVariables.put(definedSubPath.substring(1, definedSubPath.length() - 1), allActualSubPath[index]);
             }
         }
     }

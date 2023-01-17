@@ -78,6 +78,44 @@ public class RequestVerificationTest {
                 put("key2", "value2");
             }});
         }
+
+        @Nested
+        public class Errors {
+
+            @Test
+            public void defined_path_variable_not_matched() {
+                requestAnnotation = new RequestForTest("/path/{key}", "GET");
+                receivedRequest.withPath("/path");
+
+                assertThat(requestVerification().pathVariables).isEmpty();
+            }
+
+            @Test
+            public void defined_path_variables_partially_not_matched() {
+                requestAnnotation = new RequestForTest("/path/{key}/other/{key2}", "GET");
+                receivedRequest.withPath("/path/value/other");
+
+                assertThat(requestVerification().pathVariables).containsExactlyInAnyOrderEntriesOf(new HashMap<String, String>() {{
+                    put("key", "value");
+                }});
+            }
+
+            @Test
+            public void defined_path_variable_format_is_wrong_missing_left_bracket() {
+                requestAnnotation = new RequestForTest("/path/{key", "GET");
+                receivedRequest.withPath("/path/value");
+
+                assertThat(requestVerification().pathVariables).isEmpty();
+            }
+
+            @Test
+            public void defined_path_variable_format_is_wrong_missing_right_bracket() {
+                requestAnnotation = new RequestForTest("/path/key}", "GET");
+                receivedRequest.withPath("/path/value");
+
+                assertThat(requestVerification().pathVariables).isEmpty();
+            }
+        }
     }
 
     @Nested
