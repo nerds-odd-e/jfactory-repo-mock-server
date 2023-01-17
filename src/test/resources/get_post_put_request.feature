@@ -38,6 +38,23 @@ Feature: Get/Post/Put request
     }
     """
 
+    Scenario: verify GET request with headers
+      Given header by RESTful api:
+      """
+      {
+        "key1": "value1",
+        "key2": ["value2", "value3"]
+      }
+      """
+      When GET "/api"
+      Then all api data "GetRequest" should be:
+      """
+      headers[]: [{
+          key1: [value1]
+          key2: [value2, value3]
+      }]
+      """
+
   Rule: Post and Put request
 
     Scenario Outline: verify <method> request with query parameters
@@ -118,3 +135,28 @@ Feature: Get/Post/Put request
         | method | spec        |
         | POST   | PostRequest |
         | PUT    | PutRequest  |
+
+    Scenario Outline: verify <method> request with headers
+      Given header by RESTful api:
+      """
+      {
+        "key1": "value1",
+        "key2": ["value2", "value3"]
+      }
+      """
+      When <method> "/api":
+      """
+      {}
+      """
+      Then all api data "<spec>" should be:
+      """
+      headers[]: [{
+          key1: [value1]
+          key2: [value2, value3]
+      }]
+      """
+      Examples:
+        | method | spec        |
+        | POST   | PostRequest |
+        | PUT    | PutRequest  |
+
