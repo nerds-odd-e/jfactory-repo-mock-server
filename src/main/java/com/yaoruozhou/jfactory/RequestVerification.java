@@ -3,6 +3,7 @@ package com.yaoruozhou.jfactory;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.NottableString;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,29 +16,25 @@ public class RequestVerification {
     public final Map<String, String> pathVariables = new HashMap<>();
 
     public RequestVerification(HttpRequest rd, Request request) {
-        queryParams = rd.getQueryStringParameterList().stream().collect(toMap(p -> p.getName().getValue(), p -> p.getValues().stream().map(NottableString::getValue).collect(toList())));
-        String pvDefinedPath = request.path();
-        int startPos = pvDefinedPath.indexOf("{");
-        String path = rd.getPath().getValue();
-        if (startPos > 0) {
-            path = path.substring(startPos);
-            int endPos = path.indexOf("/");
-            String pvValue = path.substring(0, endPos > 0 ? endPos : path.length());
-            path = path.substring(endPos + 1);
-            pvDefinedPath = pvDefinedPath.substring(startPos + 1);
-            String pvKey = pvDefinedPath.substring(0, pvDefinedPath.indexOf("}"));
-            pvDefinedPath = pvDefinedPath.substring(pvDefinedPath.indexOf("}") + 1);
-            pathVariables.put(pvKey, pvValue);
+        queryParams = parseQueryParams(rd);
+        parsePathVariables(rd, request);
+    }
+
+    private String[] allActualSubPath(HttpRequest rd) {
+        return rd.getPath().getValue().split("/");
+    }
+
+    private void parsePathVariables(HttpRequest rd, Request request) {
+        String[] allDefinedSubPath = request.path().split("/");
+        for (String definedSubPath : allDefinedSubPath) {
+            int index = Arrays.asList(allDefinedSubPath).indexOf(definedSubPath);
+            if (definedSubPath.startsWith("{")) {
+                pathVariables.put(definedSubPath.substring(1, definedSubPath.length() - 1), allActualSubPath(rd)[index]);
+            }
         }
-        startPos = pvDefinedPath.indexOf("{");
-        if (startPos > 0) {
-            int endPos = path.indexOf("/");
-            String pvValue = path.substring(0, endPos > 0 ? endPos : path.length());
-            path = path.substring(endPos + 1);
-            pvDefinedPath = pvDefinedPath.substring(startPos + 1);
-            String pvKey = pvDefinedPath.substring(0, pvDefinedPath.indexOf("}"));
-            pvDefinedPath = pvDefinedPath.substring(pvDefinedPath.indexOf("}") + 1);
-            pathVariables.put(pvKey, pvValue);
-        }
+    }
+
+    private Map<String, List<String>> parseQueryParams(HttpRequest rd) {
+        return rd.getQueryStringParameterList().stream().collect(toMap(p -> p.getName().getValue(), p -> p.getValues().stream().map(NottableString::getValue).collect(toList())));
     }
 }
