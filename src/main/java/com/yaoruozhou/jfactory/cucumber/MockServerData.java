@@ -8,6 +8,8 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.zh_cn.假如;
 
+import java.util.function.Function;
+
 public class MockServerData {
 
     private final JData jData;
@@ -18,6 +20,10 @@ public class MockServerData {
         jData = new JData(jFactory);
         this.jFactory = jFactory;
         dataRepository = ((MockServerDataRepository) jFactory.getDataRepository());
+    }
+
+    public void setSerializer(Function<Object, String> serializer) {
+        dataRepository.setSerializer(serializer);
     }
 
     @Given("Exists api data {string} with params {string}:")

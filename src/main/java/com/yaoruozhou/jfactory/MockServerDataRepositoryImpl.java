@@ -1,8 +1,8 @@
 package com.yaoruozhou.jfactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,10 +26,12 @@ import static org.mockserver.model.HttpResponse.response;
 
 public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     private final MockServerClient mockServerClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private String urlParams;
     private Class<?> rootClazz;
     private String pathVariables;
+
+    @Setter
+    private Function<Object, String> serializer = this::toJson;
 
     public MockServerDataRepositoryImpl(MockServerClient mockServerClient) {
         this.mockServerClient = mockServerClient;
@@ -48,7 +51,6 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
 
     }
 
-    @SneakyThrows
     @Override
     public void save(Object object) {
         if (!object.getClass().equals(rootClazz)) {
@@ -82,7 +84,7 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         this.pathVariables = pathVariables;
     }
 
-    private void getJson(String method, String path, Object response) throws JsonProcessingException {
+    private void getJson(String method, String path, Object response) {
         String pathWithVariable = populatePathVariables(path);
         validatePath(pathWithVariable);
         HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
@@ -90,7 +92,7 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         mockServerClient.when(request, unlimited())
                 .respond(response().withStatusCode(200)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
-                        .withBody(objectMapper.writeValueAsString(response)));
+                        .withBody(serializer.apply(response)));
     }
 
     private boolean isResponseArray(Object object) {
@@ -135,6 +137,11 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
                 urlParams = null;
             }
         }
+    }
+
+    @SneakyThrows
+    private String toJson(Object o) {
+        return new ObjectMapper().writeValueAsString(o);
     }
 
     private String updatePathWithVariableValue(String currentPath, String pair) {
