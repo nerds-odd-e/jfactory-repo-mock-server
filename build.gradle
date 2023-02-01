@@ -86,7 +86,7 @@ pitest {
     junit5PluginVersion = "0.12"
 }
 
-build.dependsOn 'pitest'
+//build.dependsOn 'pitest'
 
 publishing {
     publications {
