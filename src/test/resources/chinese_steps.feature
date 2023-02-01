@@ -204,3 +204,13 @@
       | method | factory                      |
       | POST   | PostBeanWithTwoPathVariables |
       | PUT    | PutBeanWithTwoPathVariables  |
+
+  场景: verify GET request with query parameters
+    当GET "/api?name=John&place=Amsterdam&place=Shanghai"
+    那么所有接口数据"GetRequest"应为:
+    """
+    queryParams[]: [{
+        name: [John]
+        place: [Amsterdam, Shanghai]
+    }]
+    """

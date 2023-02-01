@@ -7,6 +7,7 @@ import com.yaoruozhou.jfactory.MockServerDataRepository;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.zh_cn.假如;
+import io.cucumber.java.zh_cn.那么;
 
 import java.util.function.Function;
 
@@ -55,6 +56,7 @@ public class MockServerData {
     }
 
     @Then("all api data {string} should be:")
+    @那么("所有接口数据{string}应为:")
     public void allApiDataShouldBe(String spec, String dalExpression) {
         setRootClass(spec);
         jData.allShould(spec, dalExpression);
