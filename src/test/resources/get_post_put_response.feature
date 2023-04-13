@@ -7,12 +7,12 @@ Feature: Get/Post/Put response
       Then "/beans" should response:
       """
       : {
-      code: 200
-      body.json= {
-      "someString": "someString#1",
-      "someInt": 1,
-      "someBoolean": true
-      }
+        code: 200
+        body.json= {
+          "someString": "someString#1",
+          "someInt": 1,
+          "someBoolean": true
+        }
       }
       """
 
@@ -210,6 +210,78 @@ Feature: Get/Post/Put response
 
   Rule: Response by url and params
 
+    Scenario: GET by url and params without setting data with table
+      Given Exists 1 api data "Bean" with params "foo=bar&name=value1&name=value2"
+      Then "/beans" should response:
+      """
+      code= 404
+      """
+      Then "/beans?foo=bar" should response:
+      """
+      code= 404
+      """
+      Then "/beans?foo=bar&name=value1" should response:
+      """
+      code= 404
+      """
+      Then "/beans?foo=bar&name=value1&name=value2" should response:
+      """
+      : {
+        code: 200
+        body.json= {
+          "someString": "someString#1",
+          "someInt": 1,
+          "someBoolean": true
+        }
+      }
+      """
+
+    Scenario Outline: <method> by url and params without setting data with table
+      Given Exists 1 api data "<factory>" with params "foo=bar&name=value1&name=value2"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code= 404
+      """
+      When <method> "/beans?foo=bar":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code= 404
+      """
+      When <method> "/beans?foo=bar&name=value1":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code= 404
+      """
+      When <method> "/beans?foo=bar&name=value1&name=value2":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.json= {
+          "someString": "someString#1",
+          "someInt": 1,
+          "someBoolean": true
+        }
+      }
+      """
+      Examples:
+        | method | factory  |
+        | POST   | PostBean |
+        | PUT    | PutBean  |
+
     Scenario: GET by url and params
       Given Exists api data "Bean" with params "foo=bar&name=value1&name=value2":
       | someString  | someInt | someBoolean |
@@ -379,6 +451,54 @@ Feature: Get/Post/Put response
       | PUT    | PutBeanWithChild  |
 
   Rule: Response by url and path variables
+
+    Scenario: GET by url and path variables without setting data with table
+      Given Exists 1 api data "BeanWithPathVariable" with path variables "foo=bar"
+      Then "/beans" should response:
+      """
+      code= 404
+      """
+      Then "/beans/bar" should response:
+      """
+      : {
+      code: 200
+        body.json= {
+          "someString": "someString#1",
+          "someInt": 1,
+          "someBoolean": true
+        }
+      }
+      """
+
+    Scenario Outline: <method> by url and path variables without setting data with table
+      Given Exists 1 api data "<factory>" with path variables "foo=bar"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code= 404
+      """
+      When <method> "/beans/bar":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+      code: 200
+        body.json= {
+          "someString": "someString#1",
+          "someInt": 1,
+          "someBoolean": true
+        }
+      }
+      """
+      Examples:
+        | method | factory                  |
+        | POST   | PostBeanWithPathVariable |
+        | PUT    | PutBeanWithPathVariable  |
 
     Scenario: GET by url and path variables
       Given Exists api data "BeanWithPathVariable" with path variables "foo=bar":

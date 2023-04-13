@@ -62,6 +62,18 @@ public class MockServerData {
         jData.allShould(spec, dalExpression);
     }
 
+    @Given("Exists {int} api data {string} with params {string}")
+    public void prepareApiDataWithNumberAndParams(int number, String spec, String params) {
+        dataRepository.setUrlParams(params);
+        prepareApiDataWithNumber(number, spec);
+    }
+
+    @Given("Exists {int} api data {string} with path variables {string}")
+    public void existsApiDataWithPathVariables(int number, String spec, String pathVariables) {
+        dataRepository.setPathVariables(pathVariables);
+        prepareApiDataWithNumber(number, spec);
+    }
+
     private void setRootClass(String spec) {
         dataRepository.setRootClass(jFactory.spec(spec.split("[ ,]")).getType().getType());
     }
