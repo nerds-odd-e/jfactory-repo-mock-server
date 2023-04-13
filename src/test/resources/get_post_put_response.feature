@@ -1,292 +1,172 @@
 Feature: Get/Post/Put response
 
-  Scenario: GET by url only and response json object without setting data with table
-    Given Exists 1 api data "Bean"
-    Then "/beans" should response:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "someString#1",
-        "someInt": 1,
-        "someBoolean": true
-      }
-    }
-    """
+  Rule: Response by url only
 
-  Scenario Outline: <method> by url only and response json object without setting data with table
-    Given Exists 1 api data "<factory>"
-    When <method> "/beans":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    : {
+    Scenario: GET by url only and response json object without setting data with table
+      Given Exists 1 api data "Bean"
+      Then "/beans" should response:
+      """
+      : {
       code: 200
       body.json= {
-        "someString": "someString#1",
-        "someInt": 1,
-        "someBoolean": true
+      "someString": "someString#1",
+      "someInt": 1,
+      "someBoolean": true
       }
-    }
-    """
-    Examples:
+      }
+      """
+
+    Scenario Outline: <method> by url only and response json object without setting data with table
+      Given Exists 1 api data "<factory>"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+      code: 200
+      body.json= {
+      "someString": "someString#1",
+      "someInt": 1,
+      "someBoolean": true
+      }
+      }
+      """
+      Examples:
       | method | factory  |
       | POST   | PostBean |
       | PUT    | PutBean  |
 
-  Scenario: GET by url only and response json object
-    Given Exists api data "Bean":
+    Scenario: GET by url only and response json object
+      Given Exists api data "Bean":
       | someString  | someInt | someBoolean |
       | stringValue | 101     | true        |
-    When "/beans" should response:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "stringValue",
-        "someInt": 101,
-        "someBoolean": true
-      }
-    }
-    """
-
-  Scenario Outline: <method> by url only and response json object
-    Given Exists api data "<factory>":
-      | someString  | someInt | someBoolean |
-      | stringValue | 101     | true        |
-    When <method> "/beans":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    : {
+      When "/beans" should response:
+      """
+      : {
       code: 200
       body.json= {
       "someString": "stringValue",
       "someInt": 101,
       "someBoolean": true
       }
-    }
-    """
-    Examples:
+      }
+      """
+
+    Scenario Outline: <method> by url only and response json object
+      Given Exists api data "<factory>":
+      | someString  | someInt | someBoolean |
+      | stringValue | 101     | true        |
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+      code: 200
+      body.json= {
+      "someString": "stringValue",
+      "someInt": 101,
+      "someBoolean": true
+      }
+      }
+      """
+      Examples:
       | method | factory  |
       | POST   | PostBean |
       | PUT    | PutBean  |
 
-  Scenario: GET by url only and response json array without setting data with table
-    Given Exists 1 api data "BeanForArray"
-    Then "/beans" should response:
-    """
-    : {
+    Scenario: GET by url only and response json array without setting data with table
+      Given Exists 1 api data "BeanForArray"
+      Then "/beans" should response:
+      """
+      : {
       code: 200
       body.json= [
-        {
-          "someString": "someString#1",
-          "someInt": 1,
-          "someBoolean": true
-        }
+      {
+      "someString": "someString#1",
+      "someInt": 1,
+      "someBoolean": true
+      }
       ]
-    }
-    """
+      }
+      """
 
-  Scenario Outline: <method> by url only and response json array without setting data with table
-    Given Exists 1 api data "<factory>"
-    When <method> "/beans":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    : {
+    Scenario Outline: <method> by url only and response json array without setting data with table
+      Given Exists 1 api data "<factory>"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
       code: 200
       body.json= [
-        {
-          "someString": "someString#1",
-          "someInt": 1,
-          "someBoolean": true
-        }
+      {
+      "someString": "someString#1",
+      "someInt": 1,
+      "someBoolean": true
+      }
       ]
-    }
-    """
-    Examples:
+      }
+      """
+      Examples:
       | method | factory          |
       | POST   | PostBeanForArray |
       | PUT    | PutBeanForArray  |
 
-  Scenario: GET by url only and response json array
-    Given Exists api data "BeanForArray":
+    Scenario: GET by url only and response json array
+      Given Exists api data "BeanForArray":
       | someString  | someInt | someBoolean |
       | stringValue | 101     | true        |
-    Then "/beans" should response:
-    """
-    : {
+      Then "/beans" should response:
+      """
+      : {
       code: 200
       body.json= [
-        {
-          "someString": "stringValue",
-          "someInt": 101,
-          "someBoolean": true
-        }
+      {
+      "someString": "stringValue",
+      "someInt": 101,
+      "someBoolean": true
+      }
       ]
-    }
-    """
+      }
+      """
 
-  Scenario Outline: <method> by url only and response json array
-    Given Exists api data "<factory>":
+    Scenario Outline: <method> by url only and response json array
+      Given Exists api data "<factory>":
       | someString  | someInt | someBoolean |
       | stringValue | 101     | true        |
-    When <method> "/beans":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    : {
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
       code: 200
       body.json= [
-        {
-          "someString": "stringValue",
-          "someInt": 101,
-          "someBoolean": true
-        }
+      {
+      "someString": "stringValue",
+      "someInt": 101,
+      "someBoolean": true
+      }
       ]
-    }
-    """
-    Examples:
+      }
+      """
+      Examples:
       | method | factory          |
       | POST   | PostBeanForArray |
       | PUT    | PutBeanForArray  |
 
-  Scenario: GET by url and params
-    Given Exists api data "Bean" with params "foo=bar&name=value1&name=value2":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
-    Then "/beans" should response:
-    """
-    code= 404
-    """
-    Then "/beans?foo=bar" should response:
-    """
-    code= 404
-    """
-    Then "/beans?foo=bar&name=value1" should response:
-    """
-    code= 404
-    """
-    Then "/beans?foo=bar&name=value1&name=value2" should response:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "stringValue",
-        "someInt": 102,
-        "someBoolean": false
-      }
-    }
-    """
-
-  Scenario Outline: <method> by url and params
-    Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
-    When <method> "/beans":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    code= 404
-    """
-    When <method> "/beans?foo=bar":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    code= 404
-    """
-    When <method> "/beans?foo=bar&name=value1":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    code= 404
-    """
-    When <method> "/beans?foo=bar&name=value1&name=value2":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "stringValue",
-        "someInt": 102,
-        "someBoolean": false
-      }
-    }
-    """
-    Examples:
-      | method | factory  |
-      | POST   | PostBean |
-      | PUT    | PutBean  |
-
-  Scenario: Params only impact related step
-    Given Exists api data "Bean" with params "foo=bar":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
-    And Exists api data "Bean":
-      | someString  | someInt | someBoolean |
-      | stringValue | 101     | true        |
-    Then "/beans" should response:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "stringValue",
-        "someInt": 101,
-        "someBoolean": true
-      }
-    }
-    """
-
-  Scenario Outline: Params only impact related step
-    Given Exists api data "<factory>" with params "foo=bar":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
-    And Exists api data "<factory>":
-      | someString  | someInt | someBoolean |
-      | stringValue | 101     | true        |
-    When <method> "/beans":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "stringValue",
-        "someInt": 101,
-        "someBoolean": true
-      }
-    }
-    """
-    Examples:
-      | method | factory  |
-      | POST   | PostBean |
-      | PUT    | PutBean  |
-
-  Scenario: GET by url with child object
-    Given Exists api data "BeanWithChild":
-      | someString  | someInt | someBoolean | child.yaString |
-      | stringValue | 101     | true        | childValue     |
-    Then "/beansWithChild" should response:
+    Scenario: GET by url with child object
+      Given Exists api data "BeanWithChild":
+        | someString  | someInt | someBoolean | child.yaString |
+        | stringValue | 101     | true        | childValue     |
+      Then "/beansWithChild" should response:
     """
     : {
       code: 200
@@ -301,15 +181,15 @@ Feature: Get/Post/Put response
     }
     """
 
-  Scenario Outline: <method> by url with child object
-    Given Exists api data "<factory>":
-      | someString  | someInt | someBoolean | child.yaString |
-      | stringValue | 101     | true        | childValue     |
-    When <method> "/beansWithChild":
+    Scenario Outline: <method> by url with child object
+      Given Exists api data "<factory>":
+        | someString  | someInt | someBoolean | child.yaString |
+        | stringValue | 101     | true        | childValue     |
+      When <method> "/beansWithChild":
     """
     {}
     """
-    Then response should be:
+      Then response should be:
     """
     : {
       code: 200
@@ -323,157 +203,314 @@ Feature: Get/Post/Put response
       }
     }
     """
-    Examples:
+      Examples:
+        | method | factory           |
+        | POST   | PostBeanWithChild |
+        | PUT    | PutBeanWithChild  |
+
+  Rule: Response by url and params
+
+    Scenario: GET by url and params
+      Given Exists api data "Bean" with params "foo=bar&name=value1&name=value2":
+      | someString  | someInt | someBoolean |
+      | stringValue | 102     | false       |
+      Then "/beans" should response:
+      """
+      code= 404
+      """
+      Then "/beans?foo=bar" should response:
+      """
+      code= 404
+      """
+      Then "/beans?foo=bar&name=value1" should response:
+      """
+      code= 404
+      """
+      Then "/beans?foo=bar&name=value1&name=value2" should response:
+      """
+      : {
+      code: 200
+      body.json= {
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false
+      }
+      }
+      """
+
+    Scenario Outline: <method> by url and params
+      Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2":
+      | someString  | someInt | someBoolean |
+      | stringValue | 102     | false       |
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code= 404
+      """
+      When <method> "/beans?foo=bar":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code= 404
+      """
+      When <method> "/beans?foo=bar&name=value1":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code= 404
+      """
+      When <method> "/beans?foo=bar&name=value1&name=value2":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+      code: 200
+      body.json= {
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false
+      }
+      }
+      """
+      Examples:
+      | method | factory  |
+      | POST   | PostBean |
+      | PUT    | PutBean  |
+
+    Scenario: Params only impact related step
+      Given Exists api data "Bean" with params "foo=bar":
+      | someString  | someInt | someBoolean |
+      | stringValue | 102     | false       |
+      And Exists api data "Bean":
+      | someString  | someInt | someBoolean |
+      | stringValue | 101     | true        |
+      Then "/beans" should response:
+      """
+      : {
+      code: 200
+      body.json= {
+      "someString": "stringValue",
+      "someInt": 101,
+      "someBoolean": true
+      }
+      }
+      """
+
+    Scenario Outline: Params only impact related step
+      Given Exists api data "<factory>" with params "foo=bar":
+      | someString  | someInt | someBoolean |
+      | stringValue | 102     | false       |
+      And Exists api data "<factory>":
+      | someString  | someInt | someBoolean |
+      | stringValue | 101     | true        |
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+      code: 200
+      body.json= {
+      "someString": "stringValue",
+      "someInt": 101,
+      "someBoolean": true
+      }
+      }
+      """
+      Examples:
+      | method | factory  |
+      | POST   | PostBean |
+      | PUT    | PutBean  |
+
+    Scenario: GET by url with params and child object
+      Given Exists api data "BeanWithChild" with params "foo=bar&name=value1&name=value2":
+      | someString  | someInt | someBoolean | child.yaString |
+      | stringValue | 102     | false       | childValue     |
+      Then "/beansWithChild?foo=bar&name=value1&name=value2" should response:
+      """
+      : {
+      code: 200
+      body.json= {
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false,
+      "child": {
+      "yaString": "childValue"
+      }
+      }
+      }
+      """
+
+    Scenario Outline: <method> by url with params and child object
+      Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2":
+      | someString  | someInt | someBoolean | child.yaString |
+      | stringValue | 102     | false       | childValue     |
+      When <method> "/beansWithChild?foo=bar&name=value1&name=value2":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+      code: 200
+      body.json= {
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false,
+      "child": {
+      "yaString": "childValue"
+      }
+      }
+      }
+      """
+      Examples:
       | method | factory           |
       | POST   | PostBeanWithChild |
       | PUT    | PutBeanWithChild  |
 
-  Scenario: GET by url with params and child object
-    Given Exists api data "BeanWithChild" with params "foo=bar&name=value1&name=value2":
-      | someString  | someInt | someBoolean | child.yaString |
-      | stringValue | 102     | false       | childValue     |
-    Then "/beansWithChild?foo=bar&name=value1&name=value2" should response:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "stringValue",
-        "someInt": 102,
-        "someBoolean": false,
-        "child": {
-          "yaString": "childValue"
-        }
-      }
-    }
-    """
+  Rule: Response by url and path variables
 
-  Scenario Outline: <method> by url with params and child object
-    Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2":
-      | someString  | someInt | someBoolean | child.yaString |
-      | stringValue | 102     | false       | childValue     |
-    When <method> "/beansWithChild?foo=bar&name=value1&name=value2":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "stringValue",
-        "someInt": 102,
-        "someBoolean": false,
-        "child": {
-          "yaString": "childValue"
-        }
-      }
-    }
-    """
-    Examples:
-      | method | factory           |
-      | POST   | PostBeanWithChild |
-      | PUT    | PutBeanWithChild  |
-
-  Scenario: GET by url and path variables
-    Given Exists api data "BeanWithPathVariable" with path variables "foo=bar":
+    Scenario: GET by url and path variables
+      Given Exists api data "BeanWithPathVariable" with path variables "foo=bar":
       | someString  | someInt | someBoolean |
       | stringValue | 102     | false       |
-    Then "/beans" should response:
-    """
-    code= 404
-    """
-    Then "/beans/bar" should response:
-    """
-    : {
+      Then "/beans" should response:
+      """
+      code= 404
+      """
+      Then "/beans/bar" should response:
+      """
+      : {
       code: 200
       body.json= {
-        "someString": "stringValue",
-        "someInt": 102,
-        "someBoolean": false
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false
       }
-    }
-    """
+      }
+      """
 
-  Scenario Outline: <method> by url and path variables
-    Given Exists api data "<factory>" with path variables "foo=bar":
+    Scenario Outline: <method> by url and path variables
+      Given Exists api data "<factory>" with path variables "foo=bar":
       | someString  | someInt | someBoolean |
       | stringValue | 102     | false       |
-    When <method> "/beans":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    code= 404
-    """
-    When <method> "/beans/bar":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    : {
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code= 404
+      """
+      When <method> "/beans/bar":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
       code: 200
       body.json= {
-        "someString": "stringValue",
-        "someInt": 102,
-        "someBoolean": false
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false
       }
-    }
-    """
-    Examples:
+      }
+      """
+      Examples:
       | method | factory                  |
       | POST   | PostBeanWithPathVariable |
       | PUT    | PutBeanWithPathVariable  |
 
-  Scenario: GET by url and two path variables
-    Given Exists api data "BeanWithTwoPathVariables" with path variables "foo=bar&name=value":
+    Scenario: GET by url and two path variables
+      Given Exists api data "BeanWithTwoPathVariables" with path variables "foo=bar&name=value":
       | someString  | someInt | someBoolean |
       | stringValue | 102     | false       |
-    Then "/beans" should response:
-    """
-    code= 404
-    """
-    Then "/beans/bar/another/value" should response:
-    """
-    : {
+      Then "/beans" should response:
+      """
+      code= 404
+      """
+      Then "/beans/bar/another/value" should response:
+      """
+      : {
       code: 200
       body.json= {
-        "someString": "stringValue",
-        "someInt": 102,
-        "someBoolean": false
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false
       }
-    }
-    """
+      }
+      """
 
-  Scenario Outline: <method> by url and two path variables
-    Given Exists api data "<factory>" with path variables "foo=bar&name=value":
+    Scenario Outline: <method> by url and two path variables
+      Given Exists api data "<factory>" with path variables "foo=bar&name=value":
       | someString  | someInt | someBoolean |
       | stringValue | 102     | false       |
-    When <method> "/beans":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    code= 404
-    """
-    When <method> "/beans/bar/another/value":
-    """
-    {}
-    """
-    Then response should be:
-    """
-    : {
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code= 404
+      """
+      When <method> "/beans/bar/another/value":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
       code: 200
       body.json= {
-        "someString": "stringValue",
-        "someInt": 102,
-        "someBoolean": false
+      "someString": "stringValue",
+      "someInt": 102,
+      "someBoolean": false
       }
-    }
-    """
-    Examples:
+      }
+      """
+      Examples:
       | method | factory                      |
       | POST   | PostBeanWithTwoPathVariables |
       | PUT    | PutBeanWithTwoPathVariables  |
+
+  Rule: Response with trait and spec
+
+    Scenario: response without table but with trait and spec split by space
+      Given Exists 1 api data "intValue strValue Bean"
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.json= {
+        "someString": "someStringValue",
+        "someInt": 42,
+        "someBoolean": true
+        }
+      }
+      """
+
+    Scenario: response without table but with trait and spec split by comma
+      Given Exists 1 api data "intValue,strValue,Bean"
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.json= {
+        "someString": "someStringValue",
+        "someInt": 42,
+        "someBoolean": true
+        }
+      }
+      """
+

@@ -63,6 +63,6 @@ public class MockServerData {
     }
 
     private void setRootClass(String spec) {
-        dataRepository.setRootClass(jFactory.specFactory(spec).getType().getType());
+        dataRepository.setRootClass(jFactory.spec(spec.split("[ ,]")).getType().getType());
     }
 }
