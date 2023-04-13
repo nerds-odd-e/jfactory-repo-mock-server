@@ -33,7 +33,7 @@ task sourcesJar(type: Jar) {
 }
 
 group = 'com.yaoruozhou'
-version = '0.3.0'
+version = '0.3.1'
 sourceCompatibility = 1.8
 
 jacocoTestReport {
