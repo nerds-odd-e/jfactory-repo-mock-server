@@ -63,12 +63,14 @@ public class MockServerData {
     }
 
     @Given("Exists {int} api data {string} with params {string}")
+    @假如("存在{int}个接口数据{string}并匹配查询参数{string}")
     public void prepareApiDataWithNumberAndParams(int number, String spec, String params) {
         dataRepository.setUrlParams(params);
         prepareApiDataWithNumber(number, spec);
     }
 
     @Given("Exists {int} api data {string} with path variables {string}")
+    @假如("存在{int}个接口数据{string}并匹配路径变量{string}")
     public void existsApiDataWithPathVariables(int number, String spec, String pathVariables) {
         dataRepository.setPathVariables(pathVariables);
         prepareApiDataWithNumber(number, spec);
