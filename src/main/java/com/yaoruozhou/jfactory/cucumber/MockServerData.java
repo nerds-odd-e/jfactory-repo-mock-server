@@ -27,6 +27,10 @@ public class MockServerData {
         dataRepository.setSerializer(serializer);
     }
 
+    public void setXmlSerializer(Function<Object, String> xmlSerializer) {
+        dataRepository.setXmlSerializer(xmlSerializer);
+    }
+
     @Given("Exists api data {string} with params {string}:")
     @假如("存在接口数据{string}并匹配查询参数{string}:")
     public void prepareApiDataWithParams(String spec, String params, Table table) {

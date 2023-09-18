@@ -12,4 +12,6 @@ public interface MockServerDataRepository extends DataRepository {
     void setPathVariables(String pathVariables);
 
     void setSerializer(Function<Object, String> serializer);
+
+    void setXmlSerializer(Function<Object, String> xmlSerializer);
 }

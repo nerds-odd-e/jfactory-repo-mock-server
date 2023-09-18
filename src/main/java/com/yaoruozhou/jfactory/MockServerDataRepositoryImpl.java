@@ -29,13 +29,15 @@ import static org.mockserver.model.HttpResponse.response;
 
 public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     private final MockServerClient mockServerClient;
+    private final XmlMapper xmlMapper = new XmlMapper();
     private String urlParams;
     private Class<?> rootClazz;
     private String pathVariables;
-    private final XmlMapper xmlMapper = new XmlMapper();
-
     @Setter
     private Function<Object, String> serializer = this::toJson;
+
+    @Setter
+    private Function<Object, String> xmlSerializer = this::toXml;
 
     public MockServerDataRepositoryImpl(MockServerClient mockServerClient) {
         this.mockServerClient = mockServerClient;
@@ -67,29 +69,12 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         String path = requestAnnotation.path();
         String method = requestAnnotation.method();
         if (isResponseArray(object)) {
-            getJson(method, path, new Object[]{object});
+            responseJson(method, path, new Object[]{object});
         } else if (isResponseXml(object)) {
-            getXml(object, path, method);
+            responseXml(object, path, method);
         } else {
-            getJson(method, path, object);
+            responseJson(method, path, object);
         }
-    }
-
-    @SneakyThrows
-    private void getXml(Object object, String path, String method) {
-        String pathWithVariable = populatePathVariables(path);
-        validatePath(pathWithVariable);
-        HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
-        setParamsForCurrentRequest(request);
-        mockServerClient.when(request, unlimited())
-                .respond(response().withStatusCode(200)
-                        .withHeader(CONTENT_TYPE, APPLICATION_XML.toString())
-                        .withBody(xmlMapper.writeValueAsString(object)));
-    }
-
-    private boolean isResponseXml(Object object) {
-        Response response = object.getClass().getAnnotation(Response.class);
-        return response != null && response.type().equals(Xml);
     }
 
     @Override
@@ -107,20 +92,14 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         this.pathVariables = pathVariables;
     }
 
-    private void getJson(String method, String path, Object response) {
-        String pathWithVariable = populatePathVariables(path);
-        validatePath(pathWithVariable);
-        HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
-        setParamsForCurrentRequest(request);
-        mockServerClient.when(request, unlimited())
-                .respond(response().withStatusCode(200)
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
-                        .withBody(serializer.apply(response)));
-    }
-
     private boolean isResponseArray(Object object) {
         Response response = object.getClass().getAnnotation(Response.class);
         return response != null && response.type().equals(JsonArray);
+    }
+
+    private boolean isResponseXml(Object object) {
+        Response response = object.getClass().getAnnotation(Response.class);
+        return response != null && response.type().equals(Xml);
     }
 
     private String populatePathVariables(String path) {
@@ -132,6 +111,26 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         } finally {
             pathVariables = null;
         }
+    }
+
+    private void responseData(Object object, String path, String method, String contentType, Function<Object, String> serializer) {
+        String pathWithVariable = populatePathVariables(path);
+        validatePath(pathWithVariable);
+        HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
+        setParamsForCurrentRequest(request);
+        mockServerClient.when(request, unlimited())
+                .respond(response().withStatusCode(200)
+                        .withHeader(CONTENT_TYPE, contentType)
+                        .withBody(serializer.apply(object)));
+    }
+
+    private void responseJson(String method, String path, Object response) {
+        responseData(response, path, method, APPLICATION_JSON.toString(), serializer);
+    }
+
+    @SneakyThrows
+    private void responseXml(Object object, String path, String method) {
+        responseData(object, path, method, APPLICATION_XML.toString(), xmlSerializer);
     }
 
     private <T> HttpRequest[] retrieveRecordedRequests(Class<T> type) {
@@ -165,6 +164,11 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     @SneakyThrows
     private String toJson(Object o) {
         return new ObjectMapper().writeValueAsString(o);
+    }
+
+    @SneakyThrows
+    private String toXml(Object object) {
+        return xmlMapper.writeValueAsString(object);
     }
 
     private String updatePathWithVariableValue(String currentPath, String pair) {
