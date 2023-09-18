@@ -21,6 +21,7 @@ apply plugin: 'java'
 apply plugin: 'signing'
 apply plugin: 'info.solidsoft.pitest'
 apply plugin: "maven"
+apply plugin: 'idea'
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
@@ -161,3 +162,10 @@ task cucumber(type: JavaExec) {
 }
 
 cucumber.dependsOn 'test'
+
+idea {
+    module {
+        downloadJavadoc = false
+        downloadSources = false
+    }
+}
