@@ -2,22 +2,26 @@ Feature: Get/Post/Put response
 
   Rule: Response by url only
 
-    Scenario: GET by url only and response json object without setting data with table
-      Given Exists 1 api data "Bean"
+    Scenario Outline: GET by url only and response <type> object without setting data with table
+      Given Exists 1 api data "<spec>"
       Then "/beans" should response:
       """
       : {
         code: 200
-        body.json= {
-          "someString": "someString#1",
-          "someInt": 1,
-          "someBoolean": true
+        body.<converter>= {
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
         }
       }
       """
+      Examples:
+        | type      | spec     | converter   |
+        | gzip json | GzipBean | ungzip.json |
+        | json      | Bean     | json        |
 
-    Scenario Outline: <method> by url only and response json object without setting data with table
-      Given Exists 1 api data "<factory>"
+    Scenario Outline: <method> by url only and response <type> object without setting data with table
+      Given Exists 1 api data "<spec>"
       When <method> "/beans":
       """
       {}
@@ -25,37 +29,43 @@ Feature: Get/Post/Put response
       Then response should be:
       """
       : {
-      code: 200
-      body.json= {
-      "someString": "someString#1",
-      "someInt": 1,
-      "someBoolean": true
-      }
+        code: 200
+        body.<converter>= {
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
+        }
       }
       """
       Examples:
-        | method | factory  |
-        | POST   | PostBean |
-        | PUT    | PutBean  |
+        | type      | method | spec         | converter   |
+        | json      | POST   | PostBean     | json        |
+        | json      | PUT    | PutBean      | json        |
+        | gzip json | POST   | PostGzipBean | ungzip.json |
+        | gzip json | PUT    | PutGzipBean  | ungzip.json |
 
-    Scenario: GET by url only and response json object
-      Given Exists api data "Bean":
+    Scenario Outline: GET by url only and response <type> object
+      Given Exists api data "<spec>":
         | someString  | someInt | someBoolean |
         | stringValue | 101     | true        |
       When "/beans" should response:
       """
       : {
-      code: 200
-      body.json= {
-      "someString": "stringValue",
-      "someInt": 101,
-      "someBoolean": true
-      }
+        code: 200
+        body.<converter>= {
+          someString: stringValue
+          someInt: 101
+          someBoolean: true
+        }
       }
       """
+      Examples:
+        | type      | spec     | converter   |
+        | gzip json | GzipBean | ungzip.json |
+        | json      | Bean     | json        |
 
-    Scenario Outline: <method> by url only and response json object
-      Given Exists api data "<factory>":
+    Scenario Outline: <method> by url only and response <type> object
+      Given Exists api data "<spec>":
         | someString  | someInt | someBoolean |
         | stringValue | 101     | true        |
       When <method> "/beans":
@@ -65,37 +75,41 @@ Feature: Get/Post/Put response
       Then response should be:
       """
       : {
-      code: 200
-      body.json= {
-      "someString": "stringValue",
-      "someInt": 101,
-      "someBoolean": true
-      }
+        code: 200
+        body.<converter>= {
+          someString: stringValue
+          someInt: 101
+          someBoolean: true
+        }
       }
       """
       Examples:
-        | method | factory  |
-        | POST   | PostBean |
-        | PUT    | PutBean  |
+        | type      | method | spec         | converter   |
+        | json      | POST   | PostBean     | json        |
+        | json      | PUT    | PutBean      | json        |
+        | gzip json | POST   | PostGzipBean | ungzip.json |
+        | gzip json | PUT    | PutGzipBean  | ungzip.json |
 
-    Scenario: GET by url only and response json array without setting data with table
-      Given Exists 1 api data "BeanForArray"
+    Scenario Outline: GET by url only and response <type> array without setting data with table
+      Given Exists 1 api data "<spec>"
       Then "/beans" should response:
       """
       : {
-      code: 200
-      body.json= [
-      {
-      "someString": "someString#1",
-      "someInt": 1,
-      "someBoolean": true
-      }
-      ]
+        code: 200
+        body.<converter>= [{
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
+        }]
       }
       """
+      Examples:
+        | type      | spec             | converter   |
+        | json      | BeanForArray     | json        |
+        | gzip json | GzipBeanForArray | ungzip.json |
 
-    Scenario Outline: <method> by url only and response json array without setting data with table
-      Given Exists 1 api data "<factory>"
+    Scenario Outline: <method> by url only and response <type> array without setting data with table
+      Given Exists 1 api data "<spec>"
       When <method> "/beans":
       """
       {}
@@ -103,41 +117,43 @@ Feature: Get/Post/Put response
       Then response should be:
       """
       : {
-      code: 200
-      body.json= [
-      {
-      "someString": "someString#1",
-      "someInt": 1,
-      "someBoolean": true
-      }
-      ]
+        code: 200
+        body.<converter>= [{
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
+        }]
       }
       """
       Examples:
-        | method | factory          |
-        | POST   | PostBeanForArray |
-        | PUT    | PutBeanForArray  |
+        | type      | method | spec                 | converter   |
+        | json      | POST   | PostBeanForArray     | json        |
+        | json      | PUT    | PutBeanForArray      | json        |
+        | gzip json | POST   | PostGzipBeanForArray | ungzip.json |
+        | gzip json | PUT    | PutGzipBeanForArray  | ungzip.json |
 
-    Scenario: GET by url only and response json array
-      Given Exists api data "BeanForArray":
+    Scenario Outline: GET by url only and response <type> array
+      Given Exists api data "<spec>":
         | someString  | someInt | someBoolean |
         | stringValue | 101     | true        |
       Then "/beans" should response:
       """
       : {
-      code: 200
-      body.json= [
-      {
-      "someString": "stringValue",
-      "someInt": 101,
-      "someBoolean": true
-      }
-      ]
+        code: 200
+        body.<converter>= [{
+          someString: stringValue
+          someInt: 101
+          someBoolean: true
+        }]
       }
       """
+      Examples:
+        | type      | spec             | converter   |
+        | json      | BeanForArray     | json        |
+        | gzip json | GzipBeanForArray | ungzip.json |
 
-    Scenario Outline: <method> by url only and response json array
-      Given Exists api data "<factory>":
+    Scenario Outline: <method> by url only and response <type> array
+      Given Exists api data "<spec>":
         | someString  | someInt | someBoolean |
         | stringValue | 101     | true        |
       When <method> "/beans":
@@ -147,83 +163,87 @@ Feature: Get/Post/Put response
       Then response should be:
       """
       : {
-      code: 200
-      body.json= [
-      {
-      "someString": "stringValue",
-      "someInt": 101,
-      "someBoolean": true
-      }
-      ]
+        code: 200
+        body.<converter>= [{
+          someString: stringValue
+          someInt: 101
+          someBoolean: true
+        }]
       }
       """
       Examples:
-        | method | factory          |
-        | POST   | PostBeanForArray |
-        | PUT    | PutBeanForArray  |
+        | type      | method | spec                 | converter   |
+        | json      | POST   | PostBeanForArray     | json        |
+        | json      | PUT    | PutBeanForArray      | json        |
+        | gzip json | POST   | PostGzipBeanForArray | ungzip.json |
+        | gzip json | PUT    | PutGzipBeanForArray  | ungzip.json |
 
     Scenario: GET by url with child object
       Given Exists api data "BeanWithChild":
         | someString  | someInt | someBoolean | child.yaString |
         | stringValue | 101     | true        | childValue     |
       Then "/beansWithChild" should response:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "stringValue",
-        "someInt": 101,
-        "someBoolean": true,
-        "child": {
-          "yaString": "childValue"
+      """
+      : {
+        code: 200
+        body.json= {
+          someString: stringValue
+          someInt: 101
+          someBoolean: true
+          child: {
+            yaString: childValue
+          }
         }
       }
-    }
-    """
+      """
 
     Scenario Outline: <method> by url with child object
       Given Exists api data "<factory>":
         | someString  | someInt | someBoolean | child.yaString |
         | stringValue | 101     | true        | childValue     |
       When <method> "/beansWithChild":
-    """
-    {}
-    """
+      """
+      {}
+      """
       Then response should be:
-    """
-    : {
-      code: 200
-      body.json= {
-        "someString": "stringValue",
-        "someInt": 101,
-        "someBoolean": true,
-        "child": {
-          "yaString": "childValue"
+      """
+      : {
+        code: 200
+        body.json= {
+          someString: stringValue
+          someInt: 101
+          someBoolean: true
+          child: {
+            yaString: childValue
+          }
         }
       }
-    }
-    """
+      """
       Examples:
         | method | factory           |
         | POST   | PostBeanWithChild |
         | PUT    | PutBeanWithChild  |
 
-    Scenario: GET by url only and response xml object without setting data with table
-      Given Exists 1 api data "BeanForXml"
+    Scenario Outline: GET by url only and response <type> object without setting data with table
+      Given Exists 1 api data "<spec>"
       Then "/beans" should response:
       """
       : {
         code: 200
-        body.xml= {
+        body.<converter>= {
           someString: someString#1
           someInt: '1'
           someBoolean: 'true'
         }
       }
       """
+      Examples:
+        | type     | spec           | converter  |
+        | xml      | BeanForXml     | xml        |
+        | gzip xml | GzipBeanForXml | ungzip.xml |
 
-    Scenario Outline: <method> by url only and response xml object without setting data with table
-      Given Exists 1 api data "<factory>"
+    Scenario Outline: <method> by url only and response <type> object without setting data with table
+      Given Exists 1 api data "<spec>"
       When <method> "/beans":
       """
       {}
@@ -232,7 +252,7 @@ Feature: Get/Post/Put response
       """
       : {
         code: 200
-        body.xml= {
+        body.<converter>= {
           someString: someString#1
           someInt: '1'
           someBoolean: 'true'
@@ -240,28 +260,34 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-        | method | factory        |
-        | POST   | PostBeanForXml |
-        | PUT    | PutBeanForXml  |
+        | type     | method | spec               | converter  |
+        | xml      | POST   | PostBeanForXml     | xml        |
+        | xml      | PUT    | PutBeanForXml      | xml        |
+        | gzip xml | POST   | PostGzipBeanForXml | ungzip.xml |
+        | gzip xml | PUT    | PutGzipBeanForXml  | ungzip.xml |
 
-    Scenario: GET by url only and response xml object
-      Given Exists api data "BeanForXml":
+    Scenario Outline: GET by url only and response <type> object
+      Given Exists api data "<spec>":
         | someString  | someInt | someBoolean |
         | stringValue | 101     | true        |
       When "/beans" should response:
       """
       : {
         code: 200
-        body.xml= {
+        body.<converter>= {
           someString: stringValue
           someInt: '101'
           someBoolean: 'true'
         }
       }
       """
+      Examples:
+        | type     | spec           | converter  |
+        | xml      | BeanForXml     | xml        |
+        | gzip xml | GzipBeanForXml | ungzip.xml |
 
-    Scenario Outline: <method> by url only and response xml object
-      Given Exists api data "<factory>":
+    Scenario Outline: <method> by url only and response <type> object
+      Given Exists api data "<spec>":
         | someString  | someInt | someBoolean |
         | stringValue | 101     | true        |
       When <method> "/beans":
@@ -272,7 +298,7 @@ Feature: Get/Post/Put response
       """
       : {
         code: 200
-        body.xml= {
+        body.<converter>= {
           someString: stringValue
           someInt: '101'
           someBoolean: 'true'
@@ -280,9 +306,11 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-        | method | factory        |
-        | POST   | PostBeanForXml |
-        | PUT    | PutBeanForXml  |
+        | type     | method | spec               | converter  |
+        | xml      | POST   | PostBeanForXml     | xml        |
+        | xml      | PUT    | PutBeanForXml      | xml        |
+        | gzip xml | POST   | PostGzipBeanForXml | ungzip.xml |
+        | gzip xml | PUT    | PutGzipBeanForXml  | ungzip.xml |
 
     Scenario: GET by url with xml child object
       Given Exists api data "BeanWithChildForXml":

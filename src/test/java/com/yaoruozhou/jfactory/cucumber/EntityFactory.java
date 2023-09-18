@@ -21,6 +21,10 @@ public class EntityFactory extends JFactory {
         register(BeansWithTwoPathVariables.BeanFactory.class);
         register(BeanForXmls.BeanSpec.class);
         register(BeansWithChildForXml.BeanFactory.class);
+        register(GzipBeans.BeanSpec.class);
+        register(GzipBeanForArrays.BeanSpec.class);
+        register(GzipBeanForXmls.BeanSpec.class);
+
         register(PostBeans.BeanFactory.class);
         register(PostBeanForArrays.BeanFactory.class);
         register(PostBeansWithChild.BeanFactory.class);
@@ -28,6 +32,10 @@ public class EntityFactory extends JFactory {
         register(PostBeansWithTwoPathVariables.BeanFactory.class);
         register(PostBeanForXmls.BeanFactory.class);
         register(PostBeansWithChildForXml.BeanFactory.class);
+        register(PostGzipBeans.BeanSpec.class);
+        register(PostGzipBeanForArrays.BeanSpec.class);
+        register(PostGzipBeanForXmls.BeanSpec.class);
+
         register(PutBeans.BeanFactory.class);
         register(PutBeanForArrays.BeanFactory.class);
         register(PutBeansWithChild.BeanFactory.class);
@@ -35,6 +43,9 @@ public class EntityFactory extends JFactory {
         register(PutBeansWithTwoPathVariables.BeanFactory.class);
         register(PutBeanForXmls.BeanFactory.class);
         register(PutBeansWithChildForXml.BeanFactory.class);
+        register(PutGzipBeans.BeanSpec.class);
+        register(PutGzipBeanForArrays.BeanSpec.class);
+        register(PutGzipBeanForXmls.BeanSpec.class);
 
         register(GetRequests.GetRequest.class);
         register(PostRequests.PostRequest.class);

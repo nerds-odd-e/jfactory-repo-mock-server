@@ -8,6 +8,9 @@ import lombok.SneakyThrows;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.model.HttpRequest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,15 +18,17 @@ import java.util.Collections;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import static com.yaoruozhou.jfactory.Response.Type.JsonArray;
 import static com.yaoruozhou.jfactory.Response.Type.Xml;
-import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
-import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_XML;
+import static io.netty.handler.codec.http.HttpHeaderValues.*;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static org.apache.http.HttpHeaders.CONTENT_ENCODING;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.mockserver.matchers.Times.unlimited;
+import static org.mockserver.model.BinaryBody.binary;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
@@ -69,11 +74,11 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         String path = requestAnnotation.path();
         String method = requestAnnotation.method();
         if (isResponseArray(object)) {
-            responseJson(method, path, new Object[]{object});
+            responseJson(new Object[]{object}, method, path, isGzip(object));
         } else if (isResponseXml(object)) {
-            responseXml(object, path, method);
+            responseXml(object, path, method, isGzip(object));
         } else {
-            responseJson(method, path, object);
+            responseJson(object, method, path, isGzip(object));
         }
     }
 
@@ -90,6 +95,11 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     @Override
     public void setPathVariables(String pathVariables) {
         this.pathVariables = pathVariables;
+    }
+
+    private boolean isGzip(Object object) {
+        Response response = object.getClass().getAnnotation(Response.class);
+        return response != null && response.gzip();
     }
 
     private boolean isResponseArray(Object object) {
@@ -113,24 +123,34 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         }
     }
 
-    private void responseData(Object object, String path, String method, String contentType, Function<Object, String> serializer) {
+    @SneakyThrows
+    private void responseData(Object object, String path, String method, String contentType, Function<Object, String> serializer, boolean gzip) {
         String pathWithVariable = populatePathVariables(path);
         validatePath(pathWithVariable);
         HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
         setParamsForCurrentRequest(request);
-        mockServerClient.when(request, unlimited())
-                .respond(response().withStatusCode(200)
-                        .withHeader(CONTENT_TYPE, contentType)
-                        .withBody(serializer.apply(object)));
+        String bodyStr = serializer.apply(object);
+        if (gzip) {
+            mockServerClient.when(request, unlimited())
+                    .respond(response().withStatusCode(200)
+                            .withHeader(CONTENT_TYPE, contentType)
+                            .withHeader(CONTENT_ENCODING, GZIP.toString())
+                            .withBody(binary(toGzipBinary(bodyStr))));
+        } else {
+            mockServerClient.when(request, unlimited())
+                    .respond(response().withStatusCode(200)
+                            .withHeader(CONTENT_TYPE, contentType)
+                            .withBody(bodyStr));
+        }
     }
 
-    private void responseJson(String method, String path, Object response) {
-        responseData(response, path, method, APPLICATION_JSON.toString(), serializer);
+    private void responseJson(Object object, String method, String path, boolean gzip) {
+        responseData(object, path, method, APPLICATION_JSON.toString(), serializer, gzip);
     }
 
     @SneakyThrows
-    private void responseXml(Object object, String path, String method) {
-        responseData(object, path, method, APPLICATION_XML.toString(), xmlSerializer);
+    private void responseXml(Object object, String path, String method, boolean gzip) {
+        responseData(object, path, method, APPLICATION_XML.toString(), xmlSerializer, gzip);
     }
 
     private <T> HttpRequest[] retrieveRecordedRequests(Class<T> type) {
@@ -159,6 +179,14 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
                 urlParams = null;
             }
         }
+    }
+
+    private byte[] toGzipBinary(String bodyStr) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(bodyStr.length());
+        try (GZIPOutputStream gzipOut = new GZIPOutputStream(baos)) {
+            gzipOut.write(bodyStr.getBytes(StandardCharsets.UTF_8));
+        }
+        return baos.toByteArray();
     }
 
     @SneakyThrows

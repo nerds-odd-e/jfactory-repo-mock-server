@@ -20,13 +20,18 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.Parameter;
 import org.mockserver.model.RequestDefinition;
 
-import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
-import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_XML;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPOutputStream;
+
+import static io.netty.handler.codec.http.HttpHeaderValues.*;
+import static org.apache.http.HttpHeaders.CONTENT_ENCODING;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockserver.model.BinaryBody.binary;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
@@ -76,6 +81,18 @@ public class MockServerDataRepositoryTest {
         verify(mockResponse).respond(eq(response().withStatusCode(200)
                 .withHeader(CONTENT_TYPE, APPLICATION_XML.toString())
                 .withBody(xmlMapper.writeValueAsString(new BeanForXml().setSomeString("value")))));
+    }
+
+    @SneakyThrows
+    @Test
+    public void mock_get_request_for_gzip_json_object() {
+        save(new GzipBean().setSomeString("value"));
+
+        verify(mockMockServerClient).when(eq(request().withMethod("GET").withPath("/beans")), eq(Times.unlimited()));
+        verify(mockResponse).respond(eq(response().withStatusCode(200)
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
+                .withHeader(CONTENT_ENCODING, GZIP.toString())
+                .withBody(binary(toGzipBinary(objectMapper.writeValueAsString(new GzipBean().setSomeString("value")))))));
     }
 
     @SneakyThrows
@@ -291,6 +308,15 @@ public class MockServerDataRepositoryTest {
 
     private void saveObjectAndCaptureRequest() {
         saveAndCaptureRequest(new BeanForArray());
+    }
+
+    @SneakyThrows
+    private byte[] toGzipBinary(String bodyStr) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(bodyStr.length());
+        try (GZIPOutputStream gzipOut = new GZIPOutputStream(baos)) {
+            gzipOut.write(bodyStr.getBytes(StandardCharsets.UTF_8));
+        }
+        return baos.toByteArray();
     }
 
 }
