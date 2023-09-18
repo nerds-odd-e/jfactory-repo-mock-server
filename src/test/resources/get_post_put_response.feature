@@ -34,14 +34,14 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-      | method | factory  |
-      | POST   | PostBean |
-      | PUT    | PutBean  |
+        | method | factory  |
+        | POST   | PostBean |
+        | PUT    | PutBean  |
 
     Scenario: GET by url only and response json object
       Given Exists api data "Bean":
-      | someString  | someInt | someBoolean |
-      | stringValue | 101     | true        |
+        | someString  | someInt | someBoolean |
+        | stringValue | 101     | true        |
       When "/beans" should response:
       """
       : {
@@ -56,8 +56,8 @@ Feature: Get/Post/Put response
 
     Scenario Outline: <method> by url only and response json object
       Given Exists api data "<factory>":
-      | someString  | someInt | someBoolean |
-      | stringValue | 101     | true        |
+        | someString  | someInt | someBoolean |
+        | stringValue | 101     | true        |
       When <method> "/beans":
       """
       {}
@@ -74,9 +74,9 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-      | method | factory  |
-      | POST   | PostBean |
-      | PUT    | PutBean  |
+        | method | factory  |
+        | POST   | PostBean |
+        | PUT    | PutBean  |
 
     Scenario: GET by url only and response json array without setting data with table
       Given Exists 1 api data "BeanForArray"
@@ -114,14 +114,14 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-      | method | factory          |
-      | POST   | PostBeanForArray |
-      | PUT    | PutBeanForArray  |
+        | method | factory          |
+        | POST   | PostBeanForArray |
+        | PUT    | PutBeanForArray  |
 
     Scenario: GET by url only and response json array
       Given Exists api data "BeanForArray":
-      | someString  | someInt | someBoolean |
-      | stringValue | 101     | true        |
+        | someString  | someInt | someBoolean |
+        | stringValue | 101     | true        |
       Then "/beans" should response:
       """
       : {
@@ -138,8 +138,8 @@ Feature: Get/Post/Put response
 
     Scenario Outline: <method> by url only and response json array
       Given Exists api data "<factory>":
-      | someString  | someInt | someBoolean |
-      | stringValue | 101     | true        |
+        | someString  | someInt | someBoolean |
+        | stringValue | 101     | true        |
       When <method> "/beans":
       """
       {}
@@ -158,9 +158,9 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-      | method | factory          |
-      | POST   | PostBeanForArray |
-      | PUT    | PutBeanForArray  |
+        | method | factory          |
+        | POST   | PostBeanForArray |
+        | PUT    | PutBeanForArray  |
 
     Scenario: GET by url with child object
       Given Exists api data "BeanWithChild":
@@ -207,6 +207,128 @@ Feature: Get/Post/Put response
         | method | factory           |
         | POST   | PostBeanWithChild |
         | PUT    | PutBeanWithChild  |
+
+    Scenario: GET by url only and response xml object without setting data with table
+      Given Exists 1 api data "BeanForXml"
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.xml= {
+          someString: someString#1
+          someInt: '1'
+          someBoolean: 'true'
+        }
+      }
+      """
+
+    Scenario Outline: <method> by url only and response xml object without setting data with table
+      Given Exists 1 api data "<factory>"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.xml= {
+          someString: someString#1
+          someInt: '1'
+          someBoolean: 'true'
+        }
+      }
+      """
+      Examples:
+        | method | factory        |
+        | POST   | PostBeanForXml |
+        | PUT    | PutBeanForXml  |
+
+    Scenario: GET by url only and response xml object
+      Given Exists api data "BeanForXml":
+        | someString  | someInt | someBoolean |
+        | stringValue | 101     | true        |
+      When "/beans" should response:
+      """
+      : {
+        code: 200
+        body.xml= {
+          someString: stringValue
+          someInt: '101'
+          someBoolean: 'true'
+        }
+      }
+      """
+
+    Scenario Outline: <method> by url only and response xml object
+      Given Exists api data "<factory>":
+        | someString  | someInt | someBoolean |
+        | stringValue | 101     | true        |
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.xml= {
+          someString: stringValue
+          someInt: '101'
+          someBoolean: 'true'
+        }
+      }
+      """
+      Examples:
+        | method | factory        |
+        | POST   | PostBeanForXml |
+        | PUT    | PutBeanForXml  |
+
+    Scenario: GET by url with xml child object
+      Given Exists api data "BeanWithChildForXml":
+        | someString  | someInt | someBoolean | child.yaString |
+        | stringValue | 101     | true        | childValue     |
+      Then "/beansWithChild" should response:
+      """
+      : {
+        code: 200
+        body.xml= {
+          someString: stringValue
+          someInt: '101'
+          someBoolean: 'true'
+          child: {
+            yaString: childValue
+          }
+        }
+      }
+      """
+
+    Scenario Outline: <method> by url with xml child object
+      Given Exists api data "<factory>":
+        | someString  | someInt | someBoolean | child.yaString |
+        | stringValue | 101     | true        | childValue     |
+      When <method> "/beansWithChild":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.xml= {
+          someString: stringValue
+          someInt: '101'
+          someBoolean: 'true'
+          child: {
+            yaString: childValue
+          }
+        }
+      }
+      """
+      Examples:
+        | method | factory                 |
+        | POST   | PostBeanWithChildForXml |
+        | PUT    | PutBeanWithChildForXml  |
 
   Rule: Response by url and params
 
@@ -284,8 +406,8 @@ Feature: Get/Post/Put response
 
     Scenario: GET by url and params
       Given Exists api data "Bean" with params "foo=bar&name=value1&name=value2":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
+        | someString  | someInt | someBoolean |
+        | stringValue | 102     | false       |
       Then "/beans" should response:
       """
       code= 404
@@ -312,8 +434,8 @@ Feature: Get/Post/Put response
 
     Scenario Outline: <method> by url and params
       Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
+        | someString  | someInt | someBoolean |
+        | stringValue | 102     | false       |
       When <method> "/beans":
       """
       {}
@@ -354,17 +476,17 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-      | method | factory  |
-      | POST   | PostBean |
-      | PUT    | PutBean  |
+        | method | factory  |
+        | POST   | PostBean |
+        | PUT    | PutBean  |
 
     Scenario: Params only impact related step
       Given Exists api data "Bean" with params "foo=bar":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
+        | someString  | someInt | someBoolean |
+        | stringValue | 102     | false       |
       And Exists api data "Bean":
-      | someString  | someInt | someBoolean |
-      | stringValue | 101     | true        |
+        | someString  | someInt | someBoolean |
+        | stringValue | 101     | true        |
       Then "/beans" should response:
       """
       : {
@@ -379,11 +501,11 @@ Feature: Get/Post/Put response
 
     Scenario Outline: Params only impact related step
       Given Exists api data "<factory>" with params "foo=bar":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
+        | someString  | someInt | someBoolean |
+        | stringValue | 102     | false       |
       And Exists api data "<factory>":
-      | someString  | someInt | someBoolean |
-      | stringValue | 101     | true        |
+        | someString  | someInt | someBoolean |
+        | stringValue | 101     | true        |
       When <method> "/beans":
       """
       {}
@@ -400,14 +522,14 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-      | method | factory  |
-      | POST   | PostBean |
-      | PUT    | PutBean  |
+        | method | factory  |
+        | POST   | PostBean |
+        | PUT    | PutBean  |
 
     Scenario: GET by url with params and child object
       Given Exists api data "BeanWithChild" with params "foo=bar&name=value1&name=value2":
-      | someString  | someInt | someBoolean | child.yaString |
-      | stringValue | 102     | false       | childValue     |
+        | someString  | someInt | someBoolean | child.yaString |
+        | stringValue | 102     | false       | childValue     |
       Then "/beansWithChild?foo=bar&name=value1&name=value2" should response:
       """
       : {
@@ -425,8 +547,8 @@ Feature: Get/Post/Put response
 
     Scenario Outline: <method> by url with params and child object
       Given Exists api data "<factory>" with params "foo=bar&name=value1&name=value2":
-      | someString  | someInt | someBoolean | child.yaString |
-      | stringValue | 102     | false       | childValue     |
+        | someString  | someInt | someBoolean | child.yaString |
+        | stringValue | 102     | false       | childValue     |
       When <method> "/beansWithChild?foo=bar&name=value1&name=value2":
       """
       {}
@@ -446,9 +568,9 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-      | method | factory           |
-      | POST   | PostBeanWithChild |
-      | PUT    | PutBeanWithChild  |
+        | method | factory           |
+        | POST   | PostBeanWithChild |
+        | PUT    | PutBeanWithChild  |
 
   Rule: Response by url and path variables
 
@@ -502,8 +624,8 @@ Feature: Get/Post/Put response
 
     Scenario: GET by url and path variables
       Given Exists api data "BeanWithPathVariable" with path variables "foo=bar":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
+        | someString  | someInt | someBoolean |
+        | stringValue | 102     | false       |
       Then "/beans" should response:
       """
       code= 404
@@ -522,8 +644,8 @@ Feature: Get/Post/Put response
 
     Scenario Outline: <method> by url and path variables
       Given Exists api data "<factory>" with path variables "foo=bar":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
+        | someString  | someInt | someBoolean |
+        | stringValue | 102     | false       |
       When <method> "/beans":
       """
       {}
@@ -548,14 +670,14 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-      | method | factory                  |
-      | POST   | PostBeanWithPathVariable |
-      | PUT    | PutBeanWithPathVariable  |
+        | method | factory                  |
+        | POST   | PostBeanWithPathVariable |
+        | PUT    | PutBeanWithPathVariable  |
 
     Scenario: GET by url and two path variables
       Given Exists api data "BeanWithTwoPathVariables" with path variables "foo=bar&name=value":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
+        | someString  | someInt | someBoolean |
+        | stringValue | 102     | false       |
       Then "/beans" should response:
       """
       code= 404
@@ -574,8 +696,8 @@ Feature: Get/Post/Put response
 
     Scenario Outline: <method> by url and two path variables
       Given Exists api data "<factory>" with path variables "foo=bar&name=value":
-      | someString  | someInt | someBoolean |
-      | stringValue | 102     | false       |
+        | someString  | someInt | someBoolean |
+        | stringValue | 102     | false       |
       When <method> "/beans":
       """
       {}
@@ -600,9 +722,9 @@ Feature: Get/Post/Put response
       }
       """
       Examples:
-      | method | factory                      |
-      | POST   | PostBeanWithTwoPathVariables |
-      | PUT    | PutBeanWithTwoPathVariables  |
+        | method | factory                      |
+        | POST   | PostBeanWithTwoPathVariables |
+        | PUT    | PutBeanWithTwoPathVariables  |
 
   Rule: Response with trait and spec
 

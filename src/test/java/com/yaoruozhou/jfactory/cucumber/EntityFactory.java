@@ -19,16 +19,22 @@ public class EntityFactory extends JFactory {
         register(BeansWithChild.BeanFactory.class);
         register(BeansWithPathVariable.BeanFactory.class);
         register(BeansWithTwoPathVariables.BeanFactory.class);
+        register(BeanForXmls.BeanSpec.class);
+        register(BeansWithChildForXml.BeanFactory.class);
         register(PostBeans.BeanFactory.class);
         register(PostBeanForArrays.BeanFactory.class);
         register(PostBeansWithChild.BeanFactory.class);
         register(PostBeansWithPathVariable.BeanFactory.class);
         register(PostBeansWithTwoPathVariables.BeanFactory.class);
+        register(PostBeanForXmls.BeanFactory.class);
+        register(PostBeansWithChildForXml.BeanFactory.class);
         register(PutBeans.BeanFactory.class);
         register(PutBeanForArrays.BeanFactory.class);
         register(PutBeansWithChild.BeanFactory.class);
         register(PutBeansWithPathVariable.BeanFactory.class);
         register(PutBeansWithTwoPathVariables.BeanFactory.class);
+        register(PutBeanForXmls.BeanFactory.class);
+        register(PutBeansWithChildForXml.BeanFactory.class);
 
         register(GetRequests.GetRequest.class);
         register(PostRequests.PostRequest.class);

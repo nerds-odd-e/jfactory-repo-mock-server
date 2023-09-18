@@ -1,6 +1,7 @@
 package com.yaoruozhou.jfactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.yaoruozhou.jfactory.cucumber.get.*;
 import com.yaoruozhou.jfactory.cucumber.post.PostBean;
 import com.yaoruozhou.jfactory.cucumber.put.PutBean;
@@ -20,6 +21,7 @@ import org.mockserver.model.Parameter;
 import org.mockserver.model.RequestDefinition;
 
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
+import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_XML;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentCaptor.forClass;
@@ -34,6 +36,7 @@ public class MockServerDataRepositoryTest {
     MockServerDataRepositoryImpl dataRepository = new MockServerDataRepositoryImpl(mockMockServerClient);
     ForwardChainExpectation mockResponse = mock(ForwardChainExpectation.class);
     ObjectMapper objectMapper = new ObjectMapper();
+    XmlMapper xmlMapper = new XmlMapper();
     ArgumentCaptor<HttpRequest> requestCaptor = forClass(HttpRequest.class);
 
     @BeforeEach
@@ -62,6 +65,17 @@ public class MockServerDataRepositoryTest {
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON.toString())
                 .withBody(objectMapper.writeValueAsString(new Bean[]{
                         new BeanForArray().setSomeString("value")}))));
+    }
+
+    @SneakyThrows
+    @Test
+    public void mock_get_request_for_xml_object() {
+        save(new BeanForXml().setSomeString("value"));
+
+        verify(mockMockServerClient).when(eq(request().withMethod("GET").withPath("/beans")), eq(Times.unlimited()));
+        verify(mockResponse).respond(eq(response().withStatusCode(200)
+                .withHeader(CONTENT_TYPE, APPLICATION_XML.toString())
+                .withBody(xmlMapper.writeValueAsString(new BeanForXml().setSomeString("value")))));
     }
 
     @SneakyThrows

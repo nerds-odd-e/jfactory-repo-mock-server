@@ -1,6 +1,7 @@
 package com.yaoruozhou.jfactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.google.common.base.Joiner;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -16,7 +17,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.yaoruozhou.jfactory.Response.Type.JsonArray;
+import static com.yaoruozhou.jfactory.Response.Type.Xml;
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
+import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_XML;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
@@ -29,6 +32,7 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     private String urlParams;
     private Class<?> rootClazz;
     private String pathVariables;
+    private final XmlMapper xmlMapper = new XmlMapper();
 
     @Setter
     private Function<Object, String> serializer = this::toJson;
@@ -64,9 +68,28 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         String method = requestAnnotation.method();
         if (isResponseArray(object)) {
             getJson(method, path, new Object[]{object});
+        } else if (isResponseXml(object)) {
+            getXml(object, path, method);
         } else {
             getJson(method, path, object);
         }
+    }
+
+    @SneakyThrows
+    private void getXml(Object object, String path, String method) {
+        String pathWithVariable = populatePathVariables(path);
+        validatePath(pathWithVariable);
+        HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
+        setParamsForCurrentRequest(request);
+        mockServerClient.when(request, unlimited())
+                .respond(response().withStatusCode(200)
+                        .withHeader(CONTENT_TYPE, APPLICATION_XML.toString())
+                        .withBody(xmlMapper.writeValueAsString(object)));
+    }
+
+    private boolean isResponseXml(Object object) {
+        Response response = object.getClass().getAnnotation(Response.class);
+        return response != null && response.type().equals(Xml);
     }
 
     @Override

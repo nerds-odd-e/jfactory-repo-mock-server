@@ -14,6 +14,6 @@ public @interface Response {
     Type type() default JsonObject;
 
     enum Type {
-        JsonObject, JsonArray
+        JsonObject, JsonArray, Xml
     }
 }
