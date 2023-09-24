@@ -6,6 +6,7 @@ import com.google.common.base.Joiner;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import org.mockserver.client.MockServerClient;
+import org.mockserver.matchers.Times;
 import org.mockserver.model.HttpRequest;
 
 import java.io.ByteArrayOutputStream;
@@ -74,11 +75,11 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         String path = requestAnnotation.path();
         String method = requestAnnotation.method();
         if (isResponseArray(object)) {
-            responseJson(new Object[]{object}, method, path, isGzip(object));
+            responseJson(new Object[]{object}, method, path, isGzip(object), times(object));
         } else if (isResponseXml(object)) {
-            responseXml(object, path, method, isGzip(object));
+            responseXml(object, path, method, isGzip(object), times(object));
         } else {
-            responseJson(object, method, path, isGzip(object));
+            responseJson(object, method, path, isGzip(object), times(object));
         }
     }
 
@@ -95,6 +96,10 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     @Override
     public void setPathVariables(String pathVariables) {
         this.pathVariables = pathVariables;
+    }
+
+    private Times getTimes(int times) {
+        return times > 0 ? Times.exactly(times) : unlimited();
     }
 
     private boolean isGzip(Object object) {
@@ -124,33 +129,33 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
     }
 
     @SneakyThrows
-    private void responseData(Object object, String path, String method, String contentType, Function<Object, String> serializer, boolean gzip) {
+    private void responseData(Object object, String path, String method, String contentType, Function<Object, String> serializer, boolean gzip, int times) {
         String pathWithVariable = populatePathVariables(path);
         validatePath(pathWithVariable);
         HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
         setParamsForCurrentRequest(request);
         String bodyStr = serializer.apply(object);
         if (gzip) {
-            mockServerClient.when(request, unlimited())
+            mockServerClient.when(request, getTimes(times))
                     .respond(response().withStatusCode(200)
                             .withHeader(CONTENT_TYPE, contentType)
                             .withHeader(CONTENT_ENCODING, GZIP.toString())
                             .withBody(binary(toGzipBinary(bodyStr))));
         } else {
-            mockServerClient.when(request, unlimited())
+            mockServerClient.when(request, getTimes(times))
                     .respond(response().withStatusCode(200)
                             .withHeader(CONTENT_TYPE, contentType)
                             .withBody(bodyStr));
         }
     }
 
-    private void responseJson(Object object, String method, String path, boolean gzip) {
-        responseData(object, path, method, APPLICATION_JSON.toString(), serializer, gzip);
+    private void responseJson(Object object, String method, String path, boolean gzip, int times) {
+        responseData(object, path, method, APPLICATION_JSON.toString(), serializer, gzip, times);
     }
 
     @SneakyThrows
-    private void responseXml(Object object, String path, String method, boolean gzip) {
-        responseData(object, path, method, APPLICATION_XML.toString(), xmlSerializer, gzip);
+    private void responseXml(Object object, String path, String method, boolean gzip, int times) {
+        responseData(object, path, method, APPLICATION_XML.toString(), xmlSerializer, gzip, times);
     }
 
     private <T> HttpRequest[] retrieveRecordedRequests(Class<T> type) {
@@ -179,6 +184,11 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
                 urlParams = null;
             }
         }
+    }
+
+    private int times(Object object) {
+        Response response = object.getClass().getAnnotation(Response.class);
+        return response == null ? 0 : response.times();
     }
 
     private byte[] toGzipBinary(String bodyStr) throws IOException {

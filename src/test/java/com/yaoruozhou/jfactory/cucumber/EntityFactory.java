@@ -24,6 +24,12 @@ public class EntityFactory extends JFactory {
         register(GzipBeans.BeanSpec.class);
         register(GzipBeanForArrays.BeanSpec.class);
         register(GzipBeanForXmls.BeanSpec.class);
+        register(BeanOnlyOneTimes.BeanSpec.class);
+        register(GzipBeanOnlyOneTimes.BeanSpec.class);
+        register(BeanForArrayOnlyOneTimes.BeanSpec.class);
+        register(GzipBeanForArrayOnlyOneTimes.BeanSpec.class);
+        register(BeanForXmlOnlyOneTimes.BeanSpec.class);
+        register(GzipBeanForXmlOnlyOneTimes.BeanSpec.class);
 
         register(PostBeans.BeanFactory.class);
         register(PostBeanForArrays.BeanFactory.class);
@@ -35,6 +41,12 @@ public class EntityFactory extends JFactory {
         register(PostGzipBeans.BeanSpec.class);
         register(PostGzipBeanForArrays.BeanSpec.class);
         register(PostGzipBeanForXmls.BeanSpec.class);
+        register(PostBeanOnlyOneTimes.BeanSpec.class);
+        register(PostGzipBeanOnlyOneTimes.BeanSpec.class);
+        register(PostBeanForArrayOnlyOneTimes.BeanSpec.class);
+        register(PostGzipBeanForArrayOnlyOneTimes.BeanSpec.class);
+        register(PostBeanForXmlOnlyOneTimes.BeanSpec.class);
+        register(PostGzipBeanForXmlOnlyOneTimes.BeanSpec.class);
 
         register(PutBeans.BeanFactory.class);
         register(PutBeanForArrays.BeanFactory.class);
@@ -46,6 +58,12 @@ public class EntityFactory extends JFactory {
         register(PutGzipBeans.BeanSpec.class);
         register(PutGzipBeanForArrays.BeanSpec.class);
         register(PutGzipBeanForXmls.BeanSpec.class);
+        register(PutBeanOnlyOneTimes.BeanSpec.class);
+        register(PutGzipBeanOnlyOneTimes.BeanSpec.class);
+        register(PutBeanForArrayOnlyOneTimes.BeanSpec.class);
+        register(PutGzipBeanForArrayOnlyOneTimes.BeanSpec.class);
+        register(PutBeanForXmlOnlyOneTimes.BeanSpec.class);
+        register(PutGzipBeanForXmlOnlyOneTimes.BeanSpec.class);
 
         register(GetRequests.GetRequest.class);
         register(PostRequests.PostRequest.class);

@@ -15,6 +15,8 @@ public @interface Response {
 
     boolean gzip() default false;
 
+    int times() default 0;
+
     enum Type {
         JsonObject, JsonArray, Xml
     }

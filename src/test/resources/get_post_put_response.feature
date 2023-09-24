@@ -784,3 +784,113 @@ Feature: Get/Post/Put response
       }
       """
 
+  Rule: Response with specified times
+
+    Scenario Outline: GET by url and response <type> object only one time
+      Given Exists 1 api data "<spec>"
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= someString#1
+      }
+      """
+      Then "/beans" should response:
+      """
+      : {
+        code: 404
+      }
+      """
+      Examples:
+        | type      | spec                      | converter   |
+        | json      | BeanOnlyOneTime           | json        |
+        | gzip json | GzipBeanOnlyOneTime       | ungzip.json |
+        | xml       | BeanForXmlOnlyOneTime     | xml         |
+        | gzip xml  | GzipBeanForXmlOnlyOneTime | ungzip.xml  |
+
+    Scenario Outline: <method> by url only and response <type> object only one time
+      Given Exists 1 api data "<spec>"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= someString#1
+      }
+      """
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code: 404
+      """
+      Examples:
+        | type      | method | spec                          | converter   |
+        | json      | POST   | PostBeanOnlyOneTime           | json        |
+        | json      | PUT    | PutBeanOnlyOneTime            | json        |
+        | gzip json | POST   | PostGzipBeanOnlyOneTime       | ungzip.json |
+        | gzip json | PUT    | PutGzipBeanOnlyOneTime        | ungzip.json |
+        | xml       | POST   | PostBeanForXmlOnlyOneTime     | xml         |
+        | gzip xml  | POST   | PostGzipBeanForXmlOnlyOneTime | ungzip.xml  |
+        | xml       | PUT    | PutBeanForXmlOnlyOneTime      | xml         |
+        | gzip xml  | PUT    | PutGzipBeanForXmlOnlyOneTime  | ungzip.xml  |
+
+    Scenario Outline: GET by url only and response <type> array only one time
+      Given Exists 1 api data "<spec>"
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.<converter>= [{
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
+        }]
+      }
+      """
+      Then "/beans" should response:
+      """
+      code: 404
+      """
+      Examples:
+        | type      | spec                        | converter   |
+        | json      | BeanForArrayOnlyOneTime     | json        |
+        | gzip json | GzipBeanForArrayOnlyOneTime | ungzip.json |
+
+    Scenario Outline: <method> by url only and response <type> array only one time
+      Given Exists 1 api data "<spec>"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>= [{
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
+        }]
+      }
+      """
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code: 404
+      """
+      Examples:
+        | type      | method | spec                            | converter   |
+        | json      | POST   | PostBeanForArrayOnlyOneTime     | json        |
+        | json      | PUT    | PutBeanForArrayOnlyOneTime      | json        |
+        | gzip json | POST   | PostGzipBeanForArrayOnlyOneTime | ungzip.json |
+        | gzip json | PUT    | PutGzipBeanForArrayOnlyOneTime  | ungzip.json |
+
