@@ -30,6 +30,10 @@ public class EntityFactory extends JFactory {
         register(GzipBeanForArrayOnlyOneTimes.BeanSpec.class);
         register(BeanForXmlOnlyOneTimes.BeanSpec.class);
         register(GzipBeanForXmlOnlyOneTimes.BeanSpec.class);
+        register(SubPathBeans.BeanFactory.class);
+        register(SubPathGzipBeans.BeanSpec.class);
+        register(SamePathBeans.BeanFactory.class);
+        register(SubPathBeansWithPathVariable.BeanFactory.class);
 
         register(PostBeans.BeanFactory.class);
         register(PostBeanForArrays.BeanFactory.class);
@@ -47,6 +51,10 @@ public class EntityFactory extends JFactory {
         register(PostGzipBeanForArrayOnlyOneTimes.BeanSpec.class);
         register(PostBeanForXmlOnlyOneTimes.BeanSpec.class);
         register(PostGzipBeanForXmlOnlyOneTimes.BeanSpec.class);
+        register(SubPathPostBeans.BeanFactory.class);
+        register(SubPathPostGzipBeans.BeanSpec.class);
+        register(SamePathPostBeans.BeanFactory.class);
+        register(SubPathPostBeansWithPathVariable.BeanFactory.class);
 
         register(PutBeans.BeanFactory.class);
         register(PutBeanForArrays.BeanFactory.class);
@@ -64,6 +72,10 @@ public class EntityFactory extends JFactory {
         register(PutGzipBeanForArrayOnlyOneTimes.BeanSpec.class);
         register(PutBeanForXmlOnlyOneTimes.BeanSpec.class);
         register(PutGzipBeanForXmlOnlyOneTimes.BeanSpec.class);
+        register(SubPathPutBeans.BeanFactory.class);
+        register(SubPathPutGzipBeans.BeanSpec.class);
+        register(SamePathPutBeans.BeanFactory.class);
+        register(SubPathPutBeansWithPathVariable.BeanFactory.class);
 
         register(GetRequests.GetRequest.class);
         register(PostRequests.PostRequest.class);

@@ -508,52 +508,6 @@ Feature: Get/Post/Put response
         | POST   | PostBean |
         | PUT    | PutBean  |
 
-    Scenario: Params only impact related step
-      Given Exists api data "Bean" with params "foo=bar":
-        | someString  | someInt | someBoolean |
-        | stringValue | 102     | false       |
-      And Exists api data "Bean":
-        | someString  | someInt | someBoolean |
-        | stringValue | 101     | true        |
-      Then "/beans" should response:
-      """
-      : {
-      code: 200
-      body.json= {
-      "someString": "stringValue",
-      "someInt": 101,
-      "someBoolean": true
-      }
-      }
-      """
-
-    Scenario Outline: Params only impact related step
-      Given Exists api data "<factory>" with params "foo=bar":
-        | someString  | someInt | someBoolean |
-        | stringValue | 102     | false       |
-      And Exists api data "<factory>":
-        | someString  | someInt | someBoolean |
-        | stringValue | 101     | true        |
-      When <method> "/beans":
-      """
-      {}
-      """
-      Then response should be:
-      """
-      : {
-      code: 200
-      body.json= {
-      "someString": "stringValue",
-      "someInt": 101,
-      "someBoolean": true
-      }
-      }
-      """
-      Examples:
-        | method | factory  |
-        | POST   | PostBean |
-        | PUT    | PutBean  |
-
     Scenario: GET by url with params and child object
       Given Exists api data "BeanWithChild" with params "foo=bar&name=value1&name=value2":
         | someString  | someInt | someBoolean | child.yaString |

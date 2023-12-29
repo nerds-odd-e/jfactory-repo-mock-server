@@ -134,18 +134,18 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         validatePath(pathWithVariable);
         HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
         setParamsForCurrentRequest(request);
-        String bodyStr = serializer.apply(object);
+        mockServerClient.clear(request);
         if (gzip) {
             mockServerClient.when(request, getTimes(times))
                     .respond(response().withStatusCode(200)
                             .withHeader(CONTENT_TYPE, contentType)
                             .withHeader(CONTENT_ENCODING, GZIP.toString())
-                            .withBody(binary(toGzipBinary(bodyStr))));
+                            .withBody(binary(toGzipBinary(serializer.apply(object)))));
         } else {
             mockServerClient.when(request, getTimes(times))
                     .respond(response().withStatusCode(200)
                             .withHeader(CONTENT_TYPE, contentType)
-                            .withBody(bodyStr));
+                            .withBody(serializer.apply(object)));
         }
     }
 
