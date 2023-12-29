@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockserver.client.ForwardChainExpectation;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.matchers.Times;
+import org.mockserver.mock.Expectation;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.Parameter;
 import org.mockserver.model.RequestDefinition;
@@ -47,6 +48,7 @@ public class MockServerDataRepositoryTest {
     @BeforeEach
     public void givenMockResponse() {
         when(mockMockServerClient.when(any(RequestDefinition.class), any(Times.class))).thenReturn(mockResponse);
+        when(mockMockServerClient.retrieveActiveExpectations(any(RequestDefinition.class))).thenReturn(new Expectation[0]);
     }
 
     @SneakyThrows

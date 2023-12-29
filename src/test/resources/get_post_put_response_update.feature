@@ -1122,117 +1122,161 @@ Feature: Get/Post/Put response update
 
   Rule: Response update with specified times
 
-#    Scenario Outline: GET by url and response <type> object only one time
-#      Given Exists 1 api data "<spec>"
-#      When Exists 1 api data "<spec>"
-#      Then "/beans" should response:
-#      """
-#      : {
-#        code: 200
-#        body.<converter>.someString= someString#2
-#      }
-#      """
-#      Then "/beans" should response:
-#      """
-#      : {
-#        code: 404
-#      }
-#      """
-#      Examples:
-#        | type      | spec                      | converter   |
-#        | json      | BeanOnlyOneTime           | json        |
-#        | gzip json | GzipBeanOnlyOneTime       | ungzip.json |
-#        | xml       | BeanForXmlOnlyOneTime     | xml         |
-#        | gzip xml  | GzipBeanForXmlOnlyOneTime | ungzip.xml  |
-#
-#    Scenario Outline: <method> by url only and response <type> object only one time
-#      Given Exists 1 api data "<spec>"
-#      When Exists 1 api data "<spec>"
-#      When <method> "/beans":
-#      """
-#      {}
-#      """
-#      Then response should be:
-#      """
-#      : {
-#        code: 200
-#        body.<converter>.someString= someString#2
-#      }
-#      """
-#      When <method> "/beans":
-#      """
-#      {}
-#      """
-#      Then response should be:
-#      """
-#      code: 404
-#      """
-#      Examples:
-#        | type      | method | spec                          | converter   |
-#        | json      | POST   | PostBeanOnlyOneTime           | json        |
-#        | json      | PUT    | PutBeanOnlyOneTime            | json        |
-#        | gzip json | POST   | PostGzipBeanOnlyOneTime       | ungzip.json |
-#        | gzip json | PUT    | PutGzipBeanOnlyOneTime        | ungzip.json |
-#        | xml       | POST   | PostBeanForXmlOnlyOneTime     | xml         |
-#        | gzip xml  | POST   | PostGzipBeanForXmlOnlyOneTime | ungzip.xml  |
-#        | xml       | PUT    | PutBeanForXmlOnlyOneTime      | xml         |
-#        | gzip xml  | PUT    | PutGzipBeanForXmlOnlyOneTime  | ungzip.xml  |
-#
-#    Scenario Outline: GET by url only and response <type> array only one time
-#      Given Exists 1 api data "<spec>"
-#      When Exists 1 api data "<spec>"
-#      Then "/beans" should response:
-#      """
-#      : {
-#        code: 200
-#        body.<converter>= [{
-#          someString: someString#2
-#          someInt: 2
-#          someBoolean: false
-#        }]
-#      }
-#      """
-#      Then "/beans" should response:
-#      """
-#      code: 404
-#      """
-#      Examples:
-#        | type      | spec                        | converter   |
-#        | json      | BeanForArrayOnlyOneTime     | json        |
-#        | gzip json | GzipBeanForArrayOnlyOneTime | ungzip.json |
-#
-#    Scenario Outline: <method> by url only and response <type> array only one time
-#      Given Exists 1 api data "<spec>"
-#      When Exists 1 api data "<spec>"
-#      When <method> "/beans":
-#      """
-#      {}
-#      """
-#      Then response should be:
-#      """
-#      : {
-#        code: 200
-#        body.<converter>= [{
-#          someString: someString#2
-#          someInt: 2
-#          someBoolean: false
-#        }]
-#      }
-#      """
-#      When <method> "/beans":
-#      """
-#      {}
-#      """
-#      Then response should be:
-#      """
-#      code: 404
-#      """
-#      Examples:
-#        | type      | method | spec                            | converter   |
-#        | json      | POST   | PostBeanForArrayOnlyOneTime     | json        |
-#        | json      | PUT    | PutBeanForArrayOnlyOneTime      | json        |
-#        | gzip json | POST   | PostGzipBeanForArrayOnlyOneTime | ungzip.json |
-#        | gzip json | PUT    | PutGzipBeanForArrayOnlyOneTime  | ungzip.json |
+    Scenario Outline: GET by url and response <type> object only one time
+      Given Exists 1 api data "<spec>"
+      When Exists 1 api data "<spec>"
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= someString#1
+      }
+      """
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= someString#2
+      }
+      """
+      Then "/beans" should response:
+      """
+      : {
+        code: 404
+      }
+      """
+      Examples:
+        | type      | spec                      | converter   |
+        | json      | BeanOnlyOneTime           | json        |
+        | gzip json | GzipBeanOnlyOneTime       | ungzip.json |
+        | xml       | BeanForXmlOnlyOneTime     | xml         |
+        | gzip xml  | GzipBeanForXmlOnlyOneTime | ungzip.xml  |
+
+    Scenario Outline: <method> by url only and response <type> object only one time
+      Given Exists 1 api data "<spec>"
+      When Exists 1 api data "<spec>"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= someString#1
+      }
+      """
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= someString#2
+      }
+      """
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code: 404
+      """
+      Examples:
+        | type      | method | spec                          | converter   |
+        | json      | POST   | PostBeanOnlyOneTime           | json        |
+        | json      | PUT    | PutBeanOnlyOneTime            | json        |
+        | gzip json | POST   | PostGzipBeanOnlyOneTime       | ungzip.json |
+        | gzip json | PUT    | PutGzipBeanOnlyOneTime        | ungzip.json |
+        | xml       | POST   | PostBeanForXmlOnlyOneTime     | xml         |
+        | gzip xml  | POST   | PostGzipBeanForXmlOnlyOneTime | ungzip.xml  |
+        | xml       | PUT    | PutBeanForXmlOnlyOneTime      | xml         |
+        | gzip xml  | PUT    | PutGzipBeanForXmlOnlyOneTime  | ungzip.xml  |
+
+    Scenario Outline: GET by url only and response <type> array only one time
+      Given Exists 1 api data "<spec>"
+      When Exists 1 api data "<spec>"
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.<converter>= [{
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
+        }]
+      }
+      """
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.<converter>= [{
+          someString: someString#2
+          someInt: 2
+          someBoolean: false
+        }]
+      }
+      """
+      Then "/beans" should response:
+      """
+      code: 404
+      """
+      Examples:
+        | type      | spec                        | converter   |
+        | json      | BeanForArrayOnlyOneTime     | json        |
+        | gzip json | GzipBeanForArrayOnlyOneTime | ungzip.json |
+
+    Scenario Outline: <method> by url only and response <type> array only one time
+      Given Exists 1 api data "<spec>"
+      When Exists 1 api data "<spec>"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>= [{
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
+        }]
+      }
+      """
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>= [{
+          someString: someString#2
+          someInt: 2
+          someBoolean: false
+        }]
+      }
+      """
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code: 404
+      """
+      Examples:
+        | type      | method | spec                            | converter   |
+        | json      | POST   | PostBeanForArrayOnlyOneTime     | json        |
+        | json      | PUT    | PutBeanForArrayOnlyOneTime      | json        |
+        | gzip json | POST   | PostGzipBeanForArrayOnlyOneTime | ungzip.json |
+        | gzip json | PUT    | PutGzipBeanForArrayOnlyOneTime  | ungzip.json |
 
     Scenario Outline: overwrite unlimited times - GET by url and response <type> object only one time
       Given Exists 1 api data "<unlimitedTimesSpec>"
@@ -1257,9 +1301,44 @@ Feature: Get/Post/Put response update
         | xml       | BeanForXmlOnlyOneTime     | xml         | BeanForXml         |
         | gzip xml  | GzipBeanForXmlOnlyOneTime | ungzip.xml  | GzipBeanForXml     |
 
-    Scenario Outline: overwrite one time - GET by url and response <type> object only one time
+    Scenario Outline: overwrite unlimited times - <method> by url only and response <type> object only one time
+      Given Exists 1 api data "<unlimitedTimesSpec>"
+      When Exists 1 api data "<spec>"
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= someString#1
+      }
+      """
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      code: 404
+      """
+      Examples:
+        | type      | method | spec                          | converter   | unlimitedTimesSpec |
+        | json      | POST   | PostBeanOnlyOneTime           | json        | PostBean           |
+        | json      | PUT    | PutBeanOnlyOneTime            | json        | PutBean            |
+        | gzip json | POST   | PostGzipBeanOnlyOneTime       | ungzip.json | PostGzipBean       |
+        | gzip json | PUT    | PutGzipBeanOnlyOneTime        | ungzip.json | PutGzipBean        |
+        | xml       | POST   | PostBeanForXmlOnlyOneTime     | xml         | PostBeanForXml     |
+        | gzip xml  | POST   | PostGzipBeanForXmlOnlyOneTime | ungzip.xml  | PostGzipBeanForXml |
+        | xml       | PUT    | PutBeanForXmlOnlyOneTime      | xml         | PutBeanForXml      |
+        | gzip xml  | PUT    | PutGzipBeanForXmlOnlyOneTime  | ungzip.xml  | PutGzipBeanForXml  |
+
+    Scenario Outline: one time and then unlimited times - GET by url and response <type> object only one time
       Given Exists 1 api data "<spec>"
-      When Exists 1 api data "<unlimitedTimesSpec>"
+      When Exists api data "<unlimitedTimesSpec>":
+        | someString |
+        | unlimited  |
       Then "/beans" should response:
       """
       : {
@@ -1271,7 +1350,14 @@ Feature: Get/Post/Put response update
       """
       : {
         code: 200
-        body.<converter>.someString= someString#1
+        body.<converter>.someString= unlimited
+      }
+      """
+      Then "/beans" should response:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= unlimited
       }
       """
       Examples:
@@ -1280,4 +1366,53 @@ Feature: Get/Post/Put response update
         | gzip json | GzipBeanOnlyOneTime       | ungzip.json | GzipBean           |
         | xml       | BeanForXmlOnlyOneTime     | xml         | BeanForXml         |
         | gzip xml  | GzipBeanForXmlOnlyOneTime | ungzip.xml  | GzipBeanForXml     |
+
+    Scenario Outline: one time and then unlimited times - <method> by url only and response <type> object only one time
+      Given Exists 1 api data "<spec>"
+      When Exists api data "<unlimitedTimesSpec>":
+        | someString |
+        | unlimited  |
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= someString#1
+      }
+      """
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= unlimited
+      }
+      """
+      When <method> "/beans":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+        code: 200
+        body.<converter>.someString= unlimited
+      }
+      """
+      Examples:
+        | type      | method | spec                          | converter   | unlimitedTimesSpec |
+        | json      | POST   | PostBeanOnlyOneTime           | json        | PostBean           |
+        | json      | PUT    | PutBeanOnlyOneTime            | json        | PutBean            |
+        | gzip json | POST   | PostGzipBeanOnlyOneTime       | ungzip.json | PostGzipBean       |
+        | gzip json | PUT    | PutGzipBeanOnlyOneTime        | ungzip.json | PutGzipBean        |
+        | xml       | POST   | PostBeanForXmlOnlyOneTime     | xml         | PostBeanForXml     |
+        | gzip xml  | POST   | PostGzipBeanForXmlOnlyOneTime | ungzip.xml  | PostGzipBeanForXml |
+        | xml       | PUT    | PutBeanForXmlOnlyOneTime      | xml         | PutBeanForXml      |
+        | gzip xml  | PUT    | PutGzipBeanForXmlOnlyOneTime  | ungzip.xml  | PutGzipBeanForXml  |
 

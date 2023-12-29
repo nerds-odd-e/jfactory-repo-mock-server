@@ -98,8 +98,24 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         this.pathVariables = pathVariables;
     }
 
+    private void clearRequest(HttpRequest request, int times) {
+        if (times == 0 && isAllDefinedUnlimitedRequests(request) || existsAnyDefinedUnlimitedRequest(request)) {
+            mockServerClient.clear(request);
+        }
+    }
+
+    private boolean existsAnyDefinedUnlimitedRequest(HttpRequest request) {
+        return Arrays.stream(mockServerClient.retrieveActiveExpectations(request))
+                .anyMatch(e -> e.getTimes().isUnlimited());
+    }
+
     private Times getTimes(int times) {
         return times > 0 ? Times.exactly(times) : unlimited();
+    }
+
+    private boolean isAllDefinedUnlimitedRequests(HttpRequest request) {
+        return Arrays.stream(mockServerClient.retrieveActiveExpectations(request))
+                .allMatch(e -> e.getTimes().isUnlimited());
     }
 
     private boolean isGzip(Object object) {
@@ -134,7 +150,7 @@ public class MockServerDataRepositoryImpl implements MockServerDataRepository {
         validatePath(pathWithVariable);
         HttpRequest request = request().withMethod(method.toUpperCase()).withPath(pathWithVariable);
         setParamsForCurrentRequest(request);
-        mockServerClient.clear(request);
+        clearRequest(request, times);
         if (gzip) {
             mockServerClient.when(request, getTimes(times))
                     .respond(response().withStatusCode(200)
