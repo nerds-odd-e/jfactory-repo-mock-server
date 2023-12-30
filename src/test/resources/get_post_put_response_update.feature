@@ -776,9 +776,9 @@ Feature: Get/Post/Put response update
         | POST   | PostBean | SamePathPostBean |
         | PUT    | PutBean  | SamePathPutBean  |
 
-  Rule: Not impact on same path with different params - response update by url and params
+  Rule: Not impact on same path with different param names - response update by url and params
 
-    Scenario: with params set later - GET by url and params without setting data with table
+    Scenario: GET by url and params without setting data with table
       Given Exists 1 api data "Bean" with params "foo=bar&bus=car"
       When Exists 1 api data "SamePathBean" with params "foo=bar&name=value1&name=value2"
       Then "/beans?foo=bar&bus=car" should response:
@@ -804,33 +804,7 @@ Feature: Get/Post/Put response update
         }
         """
 
-    Scenario: with params set first - GET by url and params without setting data with table
-      Given Exists 1 api data "SamePathBean" with params "foo=bar&name=value1&name=value2"
-      When Exists 1 api data "Bean" with params "foo=bar&bus=car"
-      Then "/beans?foo=bar&bus=car" should response:
-        """
-        : {
-          code: 200
-          body.json= {
-            someString: someString#1
-            someInt: 1
-            someBoolean: true
-          }
-        }
-        """
-      Then "/beans?foo=bar&name=value1&name=value2" should response:
-        """
-        : {
-          code: 200
-          body.json= {
-            anotherString: anotherString#1
-            anotherInt: 1
-            anotherBoolean: true
-          }
-        }
-        """
-
-    Scenario Outline: with params set later - <method> by url and params without setting data with table
+    Scenario Outline: <method> by url and params without setting data with table
       Given Exists 1 api data "<spec>" with params "foo=bar&bus=car"
       When Exists 1 api data "<anotherSpec>" with params "foo=bar&name=value1&name=value2"
       When <method> "/beans?foo=bar&bus=car":
@@ -868,43 +842,51 @@ Feature: Get/Post/Put response update
         | POST   | PostBean | SamePathPostBean |
         | PUT    | PutBean  | SamePathPutBean  |
 
-    Scenario Outline: with params set first - <method> by url and params without setting data with table
-      Given Exists 1 api data "<anotherSpec>" with params "foo=bar&name=value1&name=value2"
-      When Exists 1 api data "<spec>" with params "foo=bar&bus=car"
-      When <method> "/beans?foo=bar&bus=car":
+  Rule: Not impact on same path and same param names but different param values - response update by url and params
+
+    Scenario: GET by url and params without setting data with table
+      Given Exists api data "Bean" with params "foo=bar":
+        | someString  |
+        | firstString |
+      Given Exists api data "Bean" with params "foo=tom":
+        | someString   |
+        | secondString |
+      Then "/beans?foo=bar" should response:
+      """
+      body.json.someString: firstString
+      """
+      Then "/beans?foo=tom" should response:
+      """
+      body.json.someString: secondString
+      """
+
+    Scenario Outline: <method> by url and params without setting data with table
+      Given Exists api data "<spec>" with params "foo=bar":
+        | someString  |
+        | firstString |
+      When Exists api data "<spec>" with params "foo=tom":
+        | someString   |
+        | secondString |
+      When <method> "/beans?foo=bar":
         """
         {}
         """
       Then response should be:
         """
-        : {
-        code: 200
-          body.json= {
-            someString: someString#1
-            someInt: 1
-            someBoolean: true
-          }
-        }
+        body.json.someString: firstString
         """
-      When <method> "/beans?foo=bar&name=value1&name=value2":
+      When <method> "/beans?foo=tom":
         """
         {}
         """
       Then response should be:
         """
-        : {
-          code: 200
-          body.json= {
-            anotherString: anotherString#1
-            anotherInt: 1
-            anotherBoolean: true
-          }
-        }
+        body.json.someString: secondString
         """
       Examples:
-        | method | spec     | anotherSpec      |
-        | POST   | PostBean | SamePathPostBean |
-        | PUT    | PutBean  | SamePathPutBean  |
+        | method | spec     |
+        | POST   | PostBean |
+        | PUT    | PutBean  |
 
   Rule: Response update by url and path variables
 
@@ -991,6 +973,70 @@ Feature: Get/Post/Put response update
         | method | factory                      |
         | POST   | PostBeanWithTwoPathVariables |
         | PUT    | PutBeanWithTwoPathVariables  |
+
+    Scenario: No impact on same var name but different var value - GET by url and path variables without setting data with table
+      Given Exists 1 api data "BeanWithPathVariable" with path variables "foo=bar"
+      When Exists 1 api data "BeanWithPathVariable" with path variables "foo=tom"
+      Then "/beans/bar" should response:
+      """
+      : {
+      code: 200
+        body.json= {
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
+        }
+      }
+      """
+      Then "/beans/tom" should response:
+      """
+      : {
+      code: 200
+        body.json= {
+          someString: someString#2
+          someInt: 2
+          someBoolean: false
+        }
+      }
+      """
+
+    Scenario Outline: No impact on same var name but different var value - <method> by url and path variables without setting data with table
+      Given Exists 1 api data "<factory>" with path variables "foo=bar"
+      When Exists 1 api data "<factory>" with path variables "foo=tom"
+      When <method> "/beans/bar":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+      code: 200
+        body.json= {
+          someString: someString#1
+          someInt: 1
+          someBoolean: true
+        }
+      }
+      """
+      When <method> "/beans/tom":
+      """
+      {}
+      """
+      Then response should be:
+      """
+      : {
+      code: 200
+        body.json= {
+          someString: someString#2
+          someInt: 2
+          someBoolean: false
+        }
+      }
+      """
+      Examples:
+        | method | factory                  |
+        | POST   | PostBeanWithPathVariable |
+        | PUT    | PutBeanWithPathVariable  |
 
     Scenario: Not impact on sub path - GET by url and path variables without setting data with table
       Given Exists 1 api data "SubPathBeanWithPathVariable" with path variables "foo=bar"
